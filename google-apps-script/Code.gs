@@ -77,9 +77,6 @@ function validate_(order) {
   if (String(order.buyer).length > 120 || String(order.phone).length > 60) {
     throw new Error("Некоректні контактні дані");
   }
-  if (order.tree && (!Array.isArray(order.items) || order.items.length === 0)) {
-    throw new Error("Для підписки не обрано продукти");
-  }
 }
 
 function ensureHeaders_(sheet) {

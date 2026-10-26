@@ -1,0 +1,62 @@
+[
+  {
+    "id": "inshell",
+    "name": "Фундук у шкаралупі",
+    "unit": "100 г",
+    "kernel_g": 45,
+    "gg": 45,
+    "image": "images/hazelnut-branch.jpg",
+    "adult": false,
+    "description": "Свіжий сезонний збір, як із гілки"
+  },
+  {
+    "id": "raw",
+    "name": "Ядро сире",
+    "unit": "100 г",
+    "kernel_g": 100,
+    "gg": 100,
+    "image": "images/hazelnut-branch.jpg",
+    "adult": false,
+    "description": "Висушене природно, без обсмажування"
+  },
+  {
+    "id": "roast",
+    "name": "Ядро смажене",
+    "unit": "100 г",
+    "kernel_g": 100,
+    "gg": 110,
+    "image": "images/harvest.jpg",
+    "adult": false,
+    "description": "Легке обсмажування, насичений аромат"
+  },
+  {
+    "id": "paste",
+    "name": "Паста з фундука 100%",
+    "unit": "100 г",
+    "kernel_g": 100,
+    "gg": 125,
+    "image": "images/paste.jpg",
+    "adult": false,
+    "description": "Лише фундук і дрібка солі"
+  },
+  {
+    "id": "choc",
+    "name": "Фундук у темному шоколаді",
+    "unit": "100 г",
+    "kernel_g": 55,
+    "gg": 135,
+    "image": "images/gift-box.jpg",
+    "adult": false,
+    "description": "Цілий фундук і темний шоколад 70%"
+  },
+  {
+    "id": "chocpaste",
+    "name": "Шоколадна паста",
+    "unit": "100 г",
+    "kernel_g": 40,
+    "gg": 110,
+    "image": "images/paste.jpg",
+    "adult": false,
+    "description": "Фундук, какао і трохи тростинного цукру"
+  }
+]

@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="uk">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Магазин фундука — Ліщина, Снятин</title>
+  <meta name="description" content="Фундук, смажене ядро, паста та горіхи в шоколаді з саду «Ліщина». Роздрібний магазин із доставкою по Україні.">
+  <meta property="og:title" content="Магазин — Ліщина, фундуковий сад">
+  <meta property="og:description" content="Обирайте продукти з фундука з доставкою по Україні або самовивозом у Снятині.">
+  <meta property="og:image" content="images/gift-box.jpg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Inter:wght@300;400;500&subset=cyrillic,latin&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <a class="skip" href="#main">До змісту</a>
+  <header class="site-header is-solid" data-solid>
+    <div class="wrap">
+      <a href="index.html" class="brand" aria-label="Ліщина — на головну"><span class="brand__name">Ліщина</span><span class="brand__sub">Фундуковий сад · Снятин</span></a>
+      <button class="nav-toggle" aria-label="Меню" aria-expanded="false"><span></span></button>
+      <nav class="nav" aria-label="Основна навігація">
+        <a href="index.html">Про нас</a>
+        <a href="shop.html" aria-current="page">Магазин</a>
+        <a href="certificate.html">Підписка</a>
+        <a href="advent.html">Адвент</a>
+        <a href="contacts.html">Контакти</a>
+        <a href="certificate.html#order" class="nav__cta">Замовити</a>
+      </nav>
+    </div>
+  </header>
+  <main id="main">
+    <section class="page-intro">
+      <div class="wrap">
+        <span class="eyebrow">Магазин · Снятин</span>
+        <h1>Смаки <em>з нашого саду</em></h1>
+        <p class="lead">Обирайте стільки, скільки потрібно для дому, подарунка або офісу. Усі ціни вказані за фасування 100 г.</p>
+      </div>
+    </section>
+    <section id="shop-app" class="section--tint shop-section">
+      <div class="wrap shop-layout">
+        <div>
+          <div class="section-head shop-head">
+            <span class="eyebrow">Каталог</span>
+            <h2>Фундук без <em>зайвого</em></h2>
+            <p class="hint">Власникам іменних дерев — ціна за внутрішнім GG-бюджетом, приблизно на 9% нижча. <a href="certificate.html#tiers" class="link-line">Підписатися на дерево →</a></p>
+          </div>
+          <div class="product-grid" id="shop-products" aria-live="polite"></div>
+        </div>
+        <aside class="cart-panel" aria-live="polite">
+          <span class="eyebrow">Ваш кошик</span>
+          <h2>До <em>замовлення</em></h2>
+          <ul class="cart-list" id="shop-cart-list"><li class="muted">Кошик порожній.</li></ul>
+          <div class="cart-total"><span>Сума</span><strong id="shop-total">0 грн</strong></div>
+          <p class="cart-note" id="shop-note">Мінімальне замовлення — 300 грн.</p>
+          <a class="btn btn--light cart-checkout" id="shop-checkout" href="certificate.html?type=shop#order" aria-disabled="true">Оформити замовлення <span class="arrow">→</span></a>
+          <p class="cart-note">Доставка — за тарифами перевізника. Самовивіз — у Снятині.</p>
+        </aside>
+      </div>
+    </section>
+    <section class="cta">
+      <div class="wrap">
+        <span class="eyebrow">Більше, ніж покупка</span>
+        <h2 class="reveal">Закріпіть за собою <em>ціле дерево</em></h2>
+        <p class="lead reveal">Підписка включає іменне дерево, до двох відправок на рік і вибір продуктів у межах горіхового бюджету.</p>
+        <a href="certificate.html" class="btn btn--ghost reveal">Дивитися підписку <span class="arrow">→</span></a>
+      </div>
+    </section>
+  </main>
+  <footer class="site-footer"><div class="wrap"><div class="footer__grid">
+    <div><a href="index.html" class="brand"><span class="brand__name">Ліщина</span><span class="brand__sub">Фундуковий сад · Снятин</span></a><p class="footer__about">Невеликий екологічний фундуковий сад на 150 дерев на Прикарпатті.</p></div>
+    <div><h5>Сторінки</h5><ul><li><a href="index.html">Про нас</a></li><li><a href="shop.html">Магазин</a></li><li><a href="certificate.html">Підписка</a></li><li><a href="advent.html">Адвент</a></li></ul></div>
+    <div><h5>Інформація</h5><ul><li><a href="certificate.html#faq">Запитання</a></li><li><a href="terms.html">Умови</a></li><li><a href="contacts.html">Контакти</a></li></ul></div>
+    <div><h5>Звʼязок</h5><ul><li>м. Снятин, Івано-Франківська обл.</li><li><a href="tel:+380500000000">+38 (050) 000-00-00</a></li><li><a href="mailto:hello@lishchyna.example">hello@lishchyna.example</a></li></ul></div>
+  </div><div class="footer__bottom"><span>© 2026 Фундуковий сад «Ліщина»</span><span><a href="terms.html">Умови замовлення</a></span></div></div></footer>
+  <script src="js/pricing.js"></script><script src="script.js"></script>
+</body>
+</html>
