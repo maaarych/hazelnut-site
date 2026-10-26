@@ -5,8 +5,11 @@
      НАЛАШТУВАННЯ — змінюйте тут
      ========================================================= */
 
-  // Куди приходять замовлення (поки що через mailto).
+  // URL вебзастосунку Google Apps Script. Поки порожній — лишається mailto-fallback.
+  var ORDER_ENDPOINT = "";
   var ORDER_EMAIL = "hello@lishchyna.example";
+
+  // Куди приходять замовлення через резервний mailto.
 
   // Підписки: частка врожаю дерева.
   // budget — максимум чистого ядра фундука (г), fee — вартість дерева і пакування (грн).
@@ -313,19 +316,28 @@
 
     var d = new FormData(form);
     var t = TIERS[state.tier];
+    var items = selected().map(function (p) {
+      var q = state.qty[p.id];
+      return {
+        name: p.name,
+        quantity: q,
+        size: p.piece ? q + " шт." : q * 100 + (p.unit === "100 мл" ? " мл" : " г"),
+        price: q * p.price,
+        kernel: q * p.kernel
+      };
+    });
+    var total = tree ? t.fee + productsTotal() : t.fixedPrice;
     var lines = ["Нове замовлення", ""];
 
     if (tree) {
       lines.push("Підписка: " + t.name + " (" + t.share + " урожаю дерева, ліміт " + grams(t.budget) + " ядра)");
       lines.push("Дерево і пакування: " + money(t.fee));
       lines.push("Продукти:");
-      selected().forEach(function (p) {
-        var q = state.qty[p.id];
-        var size = p.piece ? q + " шт." : q * 100 + (p.unit === "100 мл" ? " мл" : " г");
-        lines.push("  • " + p.name + " — " + size + " = " + money(q * p.price) + " (ядра: " + grams(q * p.kernel) + ")");
+      items.forEach(function (item) {
+        lines.push("  • " + item.name + " — " + item.size + " = " + money(item.price) + " (ядра: " + grams(item.kernel) + ")");
       });
       lines.push("Використано ядра: " + grams(used()) + " із " + grams(t.budget));
-      lines.push("РАЗОМ: " + money(t.fee + productsTotal()));
+      lines.push("РАЗОМ: " + money(total));
       lines.push("", "Назва дерева: " + (d.get("tree_name") || "—"));
     } else {
       lines.push("Набір: " + t.name + " — " + money(t.fixedPrice));
@@ -342,6 +354,48 @@
       "Доставка: " + (d.get("delivery") || "—")
     );
     if (tree && hasAdult()) lines.push("Підтверджено: одержувачу 18+");
+
+    var payload = {
+      createdAt: new Date().toISOString(),
+      tier: t.name,
+      share: tree ? t.share : "",
+      tree: tree,
+      treeName: d.get("tree_name") || "",
+      recipient: d.get("recipient") || "",
+      occasion: d.get("occasion") || "",
+      message: d.get("message") || "",
+      buyer: d.get("buyer") || "",
+      phone: d.get("phone") || "",
+      email: d.get("email") || "",
+      delivery: d.get("delivery") || "",
+      adventVariant: d.get("advent_variant") || "",
+      adultConfirmed: tree && hasAdult(),
+      treeFee: tree ? t.fee : 0,
+      productsTotal: tree ? productsTotal() : 0,
+      total: total,
+      kernelUsed: tree ? used() : 0,
+      kernelBudget: tree ? t.budget : 0,
+      items: items,
+      text: lines.join("\n")
+    };
+
+    if (ORDER_ENDPOINT) {
+      status.textContent = "Надсилаємо заявку…";
+      fetch(ORDER_ENDPOINT, {
+        method: "POST",
+        mode: "no-cors",
+        headers: { "Content-Type": "text/plain;charset=UTF-8" },
+        body: JSON.stringify(payload)
+      }).then(function () {
+        status.textContent = "Заявку надіслано. Ми звʼяжемося з вами найближчим часом.";
+      }).catch(function () {
+        status.textContent = "Не вдалося надіслати заявку автоматично. Відкриваємо поштовий застосунок.";
+        window.location.href = "mailto:" + ORDER_EMAIL +
+          "?subject=" + encodeURIComponent("Підписка на дерево — " + t.name) +
+          "&body=" + encodeURIComponent(lines.join("\n"));
+      });
+      return;
+    }
 
     var href = "mailto:" + ORDER_EMAIL +
       "?subject=" + encodeURIComponent("Підписка на дерево — " + t.name) +
