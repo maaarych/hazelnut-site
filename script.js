@@ -6,7 +6,7 @@
      ========================================================= */
 
   // Вебзастосунок Google Apps Script приймає заявки, записує їх у таблицю й надсилає в Telegram.
-  var ORDER_ENDPOINT = "https://script.google.com/macros/s/AKfycbyQQjyP7AT8xNTBFFhTj0jTsVFge9O6n_Lo-KDSZbydrOGyDd607Y1Y6l80pHKOJWq6/exec";
+  var ORDER_ENDPOINT = "https://script.google.com/macros/s/AKfycbxLOsFVMmLza7Fj87iDrHFtR7JCADZU3-GLAXxcGKcOyRM6p7i2ac8UynnMC17y6wVg/exec";
   var ORDER_EMAIL = "hello@lishchyna.example";
 
   // Куди приходять замовлення через резервний mailto.
