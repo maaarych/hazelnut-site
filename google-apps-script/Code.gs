@@ -91,16 +91,21 @@ function ensureHeaders_(sheet) {
 
 function sendTelegram_(properties, text) {
   var token = requiredProperty_(properties, "TELEGRAM_BOT_TOKEN");
-  var chatId = requiredProperty_(properties, "TELEGRAM_CHAT_ID");
-  var response = UrlFetchApp.fetch("https://api.telegram.org/bot" + token + "/sendMessage", {
-    method: "post",
-    contentType: "application/json",
-    payload: JSON.stringify({ chat_id: chatId, text: text }),
-    muteHttpExceptions: true
+  var configuredIds = properties.getProperty("TELEGRAM_CHAT_IDS") || requiredProperty_(properties, "TELEGRAM_CHAT_ID");
+  var chatIds = configuredIds.split(",").map(function (id) { return id.trim(); }).filter(function (id) { return id; });
+  if (!chatIds.length) throw new Error("Не налаштовано жодного Telegram chat ID");
+
+  chatIds.forEach(function (chatId) {
+    var response = UrlFetchApp.fetch("https://api.telegram.org/bot" + token + "/sendMessage", {
+      method: "post",
+      contentType: "application/json",
+      payload: JSON.stringify({ chat_id: chatId, text: text }),
+      muteHttpExceptions: true
+    });
+    if (response.getResponseCode() >= 400) {
+      console.error("Telegram error for " + chatId + ": " + response.getContentText());
+    }
   });
-  if (response.getResponseCode() >= 400) {
-    console.error("Telegram error: " + response.getContentText());
-  }
 }
 
 function formatTelegram_(id, order) {
