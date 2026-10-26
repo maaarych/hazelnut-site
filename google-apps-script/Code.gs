@@ -32,6 +32,7 @@ function doPost(e) {
     validate_(order);
 
     var properties = PropertiesService.getScriptProperties();
+    enforceCooldown_(properties, order);
     var sheetId = requiredProperty_(properties, "SHEET_ID");
     var sheetName = properties.getProperty("SHEET_NAME") || "Orders";
     var sheetBook = SpreadsheetApp.openById(sheetId);
@@ -78,6 +79,18 @@ function validate_(order) {
     throw new Error("Некоректні контактні дані");
   }
 }
+function enforceCooldown_(properties, order) {
+  var phone = String(order.phone || "").replace(/\D/g, "");
+  var email = String(order.email || "").trim().toLowerCase();
+  var identity = phone + "|" + email;
+  var digest = Utilities.computeDigest(Utilities.DigestAlgorithm.SHA_256, identity);
+  var key = "order-cooldown-" + Utilities.base64EncodeWebSafe(digest).replace(/=/g, "");
+  var cache = CacheService.getScriptCache();
+  if (cache.get(key)) throw new Error("Ми вже отримали заявку. Спробуйте ще раз через 10 хвилин.");
+  var seconds = Number(properties.getProperty("ORDER_COOLDOWN_SECONDS") || 600);
+  cache.put(key, "1", Math.max(60, Math.min(seconds, 21600)));
+}
+
 
 function ensureHeaders_(sheet) {
   if (sheet.getLastRow() === 0) {

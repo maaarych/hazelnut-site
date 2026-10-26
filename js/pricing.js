@@ -3,6 +3,7 @@ window.LISHCHYNA_PRICING = {
   GG_RETAIL: 1.1,
   ROUND_TO: 5,
   MIN_SHOP_ORDER: 300,
+  ORDER_COOLDOWN_MS: 10 * 60 * 1000,
   PRODUCTS_URL: "data/products.json",
   ORDER_ENDPOINT: "https://script.google.com/macros/s/AKfycbxLOsFVMmLza7Fj87iDrHFtR7JCADZU3-GLAXxcGKcOyRM6p7i2ac8UynnMC17y6wVg/exec",
   SHOP_CART_KEY: "lishchyna-shop-cart",
@@ -36,6 +37,7 @@ window.LISHCHYNA_PRICING = {
       harvest: "≈ 4 кг у шкаралупі",
       share: "3/4",
       treeFee: 1900,
+      freeDelivery: true,
       features: ["Усе з «Гурмана»", "Візит у сад для двох", "Особисте фото біля дерева", "Імʼя в книзі саду"]
     }
   },

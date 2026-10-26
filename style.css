@@ -658,3 +658,46 @@ select { background-image: linear-gradient(45deg, transparent 50%, var(--ink-sof
 .tpick--featured { background: var(--green); color: var(--cream); border-color: var(--green); }
 .tpick--featured .tpick__kg, .tpick--featured .tpick__list { color: rgba(246,242,234,.75); }
 .tpick--featured .tpick__list { border-color: rgba(246,242,234,.25); }
+.tpick.tpick--featured.is-on { background: var(--green); color: var(--cream); border-color: var(--brass-soft); box-shadow: 0 0 0 1px var(--brass-soft), 0 30px 50px -30px rgba(31,58,43,.55); }
+.tpick.tpick--featured.is-on .tpick__name { color: var(--cream); }
+.tpick.tpick--featured.is-on .tpick__kg, .tpick.tpick--featured.is-on .tpick__list { color: rgba(246,242,234,.78); }
+@media (max-width: 540px) {
+  :root { --gutter: 18px; --section: clamp(58px, 14vw, 82px); }
+  .site-header { padding: 17px 0; }
+  .brand__name { font-size: 1.35rem; }
+  .brand__sub { font-size: .5rem; letter-spacing: .22em; }
+  .hero__content { padding-top: 122px; padding-bottom: 66px; }
+  .page-hero { min-height: 74svh; }
+  .page-hero h1 { font-size: clamp(2.35rem, 13vw, 3.6rem); }
+  h2 { font-size: clamp(2rem, 10vw, 2.8rem); }
+  .lead { font-size: 1rem; }
+  .hero__actions, .hero__actions .btn { width: 100%; }
+  .hero__actions .btn { justify-content: center; }
+  .tpick { padding: 24px 20px; }
+  .tpick__price { font-size: 2.35rem; }
+  .tpick__list { font-size: .82rem; }
+  .builder__label { font-size: 1.35rem; line-height: 1.15; }
+  .builder { gap: 28px; }
+  .ptable { margin-left: -2px; margin-right: -2px; }
+  .prow { padding: 16px 2px; }
+  .prow__name b { font-size: 1.15rem; }
+  .prow__price, .prow__kernel { font-size: .86rem; }
+  .stepper__b { width: 42px; height: 42px; }
+  .stepper__sz { font-size: .68rem; }
+  .summary { padding: 22px 18px; }
+  .summary__total { font-size: 1.8rem; }
+  .ready-card { min-height: 0; }
+  .cart-panel { padding: 22px 18px; }
+  .cart-total { font-size: 1.7rem; }
+  .advent-card__body { padding: 22px 18px; }
+  .days li { grid-template-columns: 32px 1fr; gap: 7px; }
+  .days__w { grid-column: 2; }
+  .offer-bottom strong { font-size: 2rem; }
+  .dlist li { align-items: flex-start; flex-direction: column; gap: 4px; }
+  .dlist li span:last-child { text-align: left; }
+  .field--row { gap: 12px; }
+  .order { min-width: 0; }
+  .form-note, .check { font-size: .76rem; }
+}
+.link-button { border: 0; border-bottom: 1px solid currentColor; padding: 0; background: transparent; color: inherit; font: inherit; cursor: pointer; }
+.link-button:hover { color: var(--brass-soft); }

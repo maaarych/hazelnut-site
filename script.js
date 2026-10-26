@@ -42,6 +42,10 @@
       var budget = card.querySelector(".tpick__kg");
       if (price) price.innerHTML = money(packageData.price).replace(" грн", "") + " <small>грн</small>";
       if (budget) budget.innerHTML = "Бюджет <b>" + gg(packageData.budget) + "</b> · <span>" + escapeHtml(packageData.harvest) + "</span>";
+      if (packageData.freeDelivery) {
+        var featureList = card.querySelector(".tpick__list");
+        if (featureList && !featureList.querySelector(".free-delivery")) featureList.insertAdjacentHTML("beforeend", "<li class=\"free-delivery\">Доставка включена</li>");
+      }
     });
     var typeSelect = document.getElementById("order_type");
     if (typeSelect && CONFIG.SUBSCRIPTIONS) {
@@ -52,11 +56,11 @@
       var advent7 = typeSelect.querySelector('option[value="advent7"]');
       var advent24 = typeSelect.querySelector('option[value="advent24"]');
       if (advent7) advent7.textContent = "Адвент «7 днів» — " + money(CONFIG.ADVENT.seven.price);
-      if (advent24) advent24.textContent = "Адвент «24 дні» — " + money(CONFIG.ADVENT.twentyFour.price);
+      if (advent24) advent24.remove();
     }
     var adventPrices = document.querySelectorAll(".offer-bottom strong");
     if (adventPrices[0] && CONFIG.ADVENT) adventPrices[0].textContent = money(CONFIG.ADVENT.seven.price);
-    if (adventPrices[1] && CONFIG.ADVENT) adventPrices[1].textContent = money(CONFIG.ADVENT.twentyFour.price);
+
   }
 
   function getCart() {
@@ -65,6 +69,20 @@
 
   function saveCart(cart) {
     localStorage.setItem(CONFIG.SHOP_CART_KEY, JSON.stringify(cart));
+  }
+  function cooldownKey(phone, email) {
+    return "lishchyna-order-cooldown:" + String(phone || "").replace(/\D/g, "") + ":" + String(email || "").trim().toLowerCase();
+  }
+
+  function cooldownMessage(phone, email) {
+    var key = cooldownKey(phone, email);
+    var last = Number(localStorage.getItem(key) || 0);
+    var waitMs = CONFIG.ORDER_COOLDOWN_MS || 600000;
+    var left = waitMs - (Date.now() - last);
+    if (last && left > 0) {
+      return "Ми вже отримали заявку. Нову можна надіслати приблизно через " + Math.ceil(left / 60000) + " хв.";
+    }
+    return "";
   }
 
   function loadProducts(callback) {
@@ -242,6 +260,11 @@
       if (state.type === "shop") return productTotal();
       return adventOffer().price;
     }
+    function nextPackageId() {
+      var ids = ["classic", "gourmet", "owner"];
+      var index = ids.indexOf(state.type);
+      return index >= 0 && index < ids.length - 1 ? ids[index + 1] : "";
+    }
     function show(node, visible) { if (node) node.hidden = !visible; }
 
     function setType(type) {
@@ -279,6 +302,7 @@
       var summaryList = document.getElementById("sum-list");
       var totalNode = document.getElementById("sum-total");
       var packageNode = document.getElementById("sum-package");
+      var summaryHint = document.querySelector(".summary__hint");
       var usedNode = document.getElementById("sum-used");
       var budgetNode = document.getElementById("sum-budget");
       var leftNode = document.getElementById("sum-left");
@@ -310,12 +334,30 @@
         row.querySelector('[data-act="dec"]').disabled = quantity === 0;
         row.querySelector('[data-act="inc"]').disabled = !isSubscription() && state.type !== "shop";
       });
+      if (summaryHint) {
+        if (!isSubscription()) {
+          summaryHint.textContent = "До двох відправок на рік включено для підписки.";
+        } else if (surcharge > 0) {
+          var upgradeId = nextPackageId();
+          var upgrade = upgradeId ? subscriptions[upgradeId] : null;
+          summaryHint.innerHTML = upgrade
+            ? "Бюджет перевищено. <button type=\"button\" class=\"link-button\" id=\"upgrade-package\">Перейти на «" + escapeHtml(upgrade.name) + "» за " + money(upgrade.price) + "</button> або залишити доплату " + money(surcharge) + "."
+            : "Бюджет перевищено на " + gg(used - budget) + ". Доплата — " + money(surcharge) + ".";
+          var upgradeButton = document.getElementById("upgrade-package");
+          if (upgradeButton) upgradeButton.addEventListener("click", function () { setType(upgradeId); });
+        } else if (used < budget) {
+          summaryHint.textContent = "Залишок " + gg(budget - used) + " збережеться як знижка на продовження.";
+        } else {
+          summaryHint.textContent = "Бюджет використано. До двох відправок на рік включено.";
+        }
+      }
       var formSummary = document.getElementById("order-sum-body");
-      if (formSummary) formSummary.innerHTML = "<b>" + escapeHtml(orderTitle()) + "</b><br>До сплати: <b>" + money(total()) + "</b>" + (isSubscription() ? "<br>Горіховий бюджет: " + gg(used) + " із " + gg(budget) : "") + (surcharge ? "<br>Доплата за перевищення: " + money(surcharge) : "");
+      if (formSummary) formSummary.innerHTML = "<b>" + escapeHtml(orderTitle()) + "</b><br>До сплати: <b>" + money(total()) + "</b>" + (isSubscription() ? "<br>Горіховий бюджет: " + gg(used) + " із " + gg(budget) : "") + (isSubscription() && used < budget ? "<br>Залишок: " + gg(budget - used) + " — знижка на продовження" : "") + (surcharge ? "<br>Доплата за перевищення: " + money(surcharge) : "");
     }
 
     function syncFields() {
       var subscription = isSubscription();
+      var packageData = currentPackage();
       var advent = state.type === "advent7" || state.type === "advent24";
       var alcohol = advent && adventVariant && adventVariant.value.indexOf("алкогол") >= 0;
       var treeField = treeInput ? treeInput.closest(".field") : null;
@@ -332,7 +374,13 @@
         adultInput.required = alcohol;
         if (!alcohol) adultInput.checked = false;
       }
-      if (typeNote) typeNote.textContent = subscription ? "Продукти можна обрати зараз або пізніше. До двох відправок на рік включено." : "Заявка піде в таблицю замовлень і Telegram.";
+      if (typeNote) {
+        typeNote.textContent = packageData && packageData.freeDelivery
+          ? "Доставка для пакета «Господар дерева» включена у ціну. До двох відправок на рік."
+          : subscription
+            ? "Продукти можна обрати зараз або пізніше. До двох відправок на рік включено."
+            : "Заявка піде в таблицю замовлень і Telegram.";
+      }
       updateTag();
     }
 
@@ -363,7 +411,7 @@
     if (treeInput) treeInput.addEventListener("input", updateTag);
     if (recipientInput) recipientInput.addEventListener("input", updateTag);
     var queryType = new URLSearchParams(window.location.search).get("type");
-    if (queryType && (subscriptions[queryType] || queryType === "shop" || queryType === "advent7" || queryType === "advent24")) state.type = queryType;
+    if (queryType && (subscriptions[queryType] || queryType === "shop" || queryType === "advent7")) state.type = queryType;
     if (state.type === "shop") {
       var savedCart = getCart();
       products.forEach(function (product) { state.qty[product.id] = Number(savedCart[product.id]) || 0; });
@@ -380,6 +428,13 @@
       }
       if (!form.reportValidity()) return;
       var data = new FormData(form);
+      var repeatMessage = cooldownMessage(data.get("phone"), data.get("email"));
+      if (repeatMessage) {
+        status.textContent = repeatMessage;
+        return;
+      }
+      localStorage.setItem(cooldownKey(data.get("phone"), data.get("email")), String(Date.now()));
+
       var items = selectedItems();
       var packageData = currentPackage();
       var selectedTotal = total();
@@ -390,6 +445,8 @@
         items.forEach(function (item) { lines.push("• " + item.name + " — " + item.size + " = " + money(item.price)); });
       }
       lines.push("", "Покупець: " + data.get("buyer"), "Телефон: " + data.get("phone"), "Email: " + (data.get("email") || "—"), "Доставка: " + data.get("delivery"));
+      if (packageData && packageData.freeDelivery) lines.push("Доставка: включена у пакет");
+
       if (data.get("tree_name")) lines.push("Назва дерева: " + data.get("tree_name"));
       if (data.get("recipient")) lines.push("Одержувач: " + data.get("recipient"));
       if (data.get("occasion")) lines.push("Нагода: " + data.get("occasion"));
@@ -411,6 +468,7 @@
         adventVariant: data.get("advent_variant") || "",
         adultConfirmed: data.get("adult") === "on",
         treeFee: packageData ? packageData.price : 0,
+        freeDelivery: Boolean(packageData && packageData.freeDelivery),
         productsTotal: productTotal(),
         total: selectedTotal,
         kernelUsed: usedBudget(),
