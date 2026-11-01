@@ -2,6 +2,7 @@ services:
   - type: web
     name: hazely
     runtime: node
+    region: frankfurt
     plan: starter            # 0.5 CPU, 512 MB
     buildCommand: "true"     # залежностей немає
     startCommand: npm start
