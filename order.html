@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="uk">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Замовлення — Hazeloo</title>
+<meta name="description" content="Оформіть замовлення: імʼя, телефон, відділення Нової пошти та продукти.">
+<meta property="og:title" content="Замовлення — Hazeloo">
+<meta property="og:description" content="Оформіть замовлення: імʼя, телефон, відділення Нової пошти та продукти.">
+<meta property="og:image" content="images/gift-box.jpg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;1,500&family=Inter:wght@400;500&subset=cyrillic,latin&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<a class="skip" href="#main">До змісту</a>
+<header class="site-header is-solid" data-solid><div class="wrap"><a href="index.html" class="brand" aria-label="Hazeloo — на головну"><span class="brand__name">Hazeloo</span><span class="brand__sub">Фундуковий сад · Снятин</span></a><button class="nav-toggle" aria-label="Меню" aria-expanded="false"><span></span></button><nav class="nav" aria-label="Основна навігація"><a href="shop.html">Магазин</a><a href="certificate.html">Підписка</a><a href="advent.html">Адвент</a><a href="contacts.html">Контакти</a><a href="cabinet.html">Кабінет</a><a href="order.html" class="nav__cta">Замовити</a></nav><div class="prefs"><div class="seg" role="group" aria-label="Мова"><button type="button" data-lang="uk">UA</button><button type="button" data-lang="en">EN</button></div><div class="seg" role="group" aria-label="Валюта"><button type="button" data-cur="UAH" aria-label="₴">₴</button><button type="button" data-cur="EUR" aria-label="€">€</button></div></div></div></header>
+<main id="main">
+<section class="page-intro"><div class="wrap"><span class="eyebrow">Замовлення</span><h1>Ваше <em data-en="order">замовлення</em></h1></div></section>
+<section class="section--tint order-section"><div class="wrap">
+<form id="order-form" class="order-layout" novalidate>
+<div class="order-main">
+<div class="block"><h2 class="block__title"><span data-n>1</span> Підписка <small>необовʼязково</small></h2>
+<div class="plan-pick" id="plan-pick" role="radiogroup" aria-label="Підписка"></div></div>
+<div class="block" id="block-sub" hidden><h2 class="block__title"><span data-n>2</span> Набір по підписці</h2>
+<p class="hint" id="sub-hint"></p>
+<div class="otable" id="order-sub" aria-live="polite"></div></div>
+<div class="block"><h2 class="block__title"><span data-n>2</span> <b id="extra-title">Продукти</b></h2>
+<p class="hint" id="products-hint"></p>
+<div class="otable" id="order-products" aria-live="polite"></div></div>
+<div class="block"><h2 class="block__title"><span data-n>3</span> Доставка</h2>
+<div class="fields">
+<div class="field"><label for="name">Імʼя</label><input id="name" name="name" type="text" autocomplete="name" maxlength="120" required></div>
+<div class="field"><label for="phone">Телефон</label><input id="phone" name="phone" type="tel" autocomplete="tel" placeholder="+38 0__ ___ __ __" required></div>
+<div class="field field--wide"><label for="branch">Відділення Нової пошти</label><input id="branch" name="branch" type="text" maxlength="200" placeholder="Місто, № відділення" required></div>
+<div class="field field--wide" id="password-field" hidden><label for="password">Пароль для кабінету</label><input id="password" name="password" type="password" autocomplete="new-password" minlength="6" maxlength="100" placeholder="від 6 символів"></div>
+</div>
+<p class="hint" id="account-note"></p></div>
+</div>
+<aside class="summary" aria-live="polite">
+<h3>Підсумок</h3>
+<div id="sum-plan" class="summary__tier"></div>
+<div id="regulator" class="reg" hidden><div class="reg__track"><div class="reg__zone" id="reg-zone"></div><div class="reg__fill" id="reg-fill"></div></div><div class="reg__txt" id="reg-txt"></div></div>
+<ul class="summary__list" id="sum-list"></ul>
+<div class="summary__row" id="sum-adjust-row" hidden><span>Підлаштування ціни</span><span id="sum-adjust"></span></div>
+<div class="summary__total"><span>До сплати</span><span id="sum-total">0 грн</span></div>
+<button type="submit" class="btn btn--light">Оформити <span class="arrow">→</span></button>
+<p class="form-status" id="form-status" role="status"></p>
+<p class="hint summary__hint" data-cur-note hidden></p>
+<p class="hint summary__hint">Доставка — за тарифами Нової пошти. Після оформлення ми зателефонуємо для підтвердження.</p>
+</aside>
+</form>
+<div id="order-done" class="done" hidden><span class="eyebrow">Дякуємо</span><h2>Замовлення <em id="done-id"></em> прийнято</h2><p class="lead">Статус — «Обробка». Скасувати замовлення можна в кабінеті, поки його не підтверджено.</p><a href="cabinet.html" class="btn">Відкрити кабінет <span class="arrow">→</span></a></div>
+</div></section>
+</main>
+<footer class="site-footer"><div class="wrap footer__bar"><a href="index.html" class="brand"><span class="brand__name">Hazeloo</span><span class="brand__sub">Фундуковий сад · Снятин</span></a><ul><li><a href="terms.html">Умови</a></li><li><a href="contacts.html">Контакти</a></li><li><a href="tel:+380500000000">+38 (050) 000-00-00</a></li></ul><span class="footer__copy">© 2026 Фундуковий сад «Hazeloo»</span></div></footer>
+<script src="js/pricing.js"></script><script src="js/i18n.js"></script><script src="script.js"></script>
+</body>
+</html>

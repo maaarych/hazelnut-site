@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="uk">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Кабінет — Hazeloo</title>
+<meta name="description" content="Статуси ваших замовлень: обробка, підтверджено, доставлено. Скасування на етапі обробки.">
+<meta property="og:title" content="Кабінет — Hazeloo">
+<meta property="og:description" content="Статуси ваших замовлень: обробка, підтверджено, доставлено. Скасування на етапі обробки.">
+<meta property="og:image" content="images/gift-box.jpg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;1,500&family=Inter:wght@400;500&subset=cyrillic,latin&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<a class="skip" href="#main">До змісту</a>
+<header class="site-header is-solid" data-solid><div class="wrap"><a href="index.html" class="brand" aria-label="Hazeloo — на головну"><span class="brand__name">Hazeloo</span><span class="brand__sub">Фундуковий сад · Снятин</span></a><button class="nav-toggle" aria-label="Меню" aria-expanded="false"><span></span></button><nav class="nav" aria-label="Основна навігація"><a href="shop.html">Магазин</a><a href="certificate.html">Підписка</a><a href="advent.html">Адвент</a><a href="contacts.html">Контакти</a><a href="cabinet.html" aria-current="page">Кабінет</a><a href="order.html" class="nav__cta">Замовити</a></nav><div class="prefs"><div class="seg" role="group" aria-label="Мова"><button type="button" data-lang="uk">UA</button><button type="button" data-lang="en">EN</button></div><div class="seg" role="group" aria-label="Валюта"><button type="button" data-cur="UAH" aria-label="₴">₴</button><button type="button" data-cur="EUR" aria-label="€">€</button></div></div></div></header>
+<main id="main">
+<section class="page-intro"><div class="wrap"><span class="eyebrow">Кабінет</span><h1>Мої <em>замовлення</em></h1></div></section>
+<section class="section--tint order-section"><div class="wrap">
+<div id="auth" class="auth" hidden>
+<div class="auth__tabs" role="tablist"><button type="button" role="tab" class="is-on" data-tab="login">Вхід</button><button type="button" role="tab" data-tab="register">Реєстрація</button></div>
+<form id="auth-form" novalidate>
+<div class="field" id="auth-name-field" hidden><label for="auth-name">Імʼя</label><input id="auth-name" name="name" type="text" autocomplete="name" maxlength="120"></div>
+<div class="field"><label for="auth-phone">Телефон</label><input id="auth-phone" name="phone" type="tel" autocomplete="tel" placeholder="+38 0__ ___ __ __" required></div>
+<div class="field"><label for="auth-password">Пароль</label><input id="auth-password" name="password" type="password" autocomplete="current-password" minlength="6" required></div>
+<button type="submit" class="btn" id="auth-submit">Увійти <span class="arrow">→</span></button>
+<p class="form-status" id="auth-status" role="status"></p>
+</form></div>
+<div id="account" hidden>
+<div class="account__bar"><p><b id="acc-name"></b> · <span id="acc-phone"></span></p><div><a href="order.html" class="link-line">Нове замовлення</a> <button type="button" class="link-button" id="logout">Вийти</button></div></div>
+<div id="orders" class="orders" aria-live="polite"></div>
+</div>
+</div></section>
+</main>
+<footer class="site-footer"><div class="wrap footer__bar"><a href="index.html" class="brand"><span class="brand__name">Hazeloo</span><span class="brand__sub">Фундуковий сад · Снятин</span></a><ul><li><a href="terms.html">Умови</a></li><li><a href="contacts.html">Контакти</a></li><li><a href="tel:+380500000000">+38 (050) 000-00-00</a></li></ul><span class="footer__copy">© 2026 Фундуковий сад «Hazeloo»</span></div></footer>
+<script src="js/pricing.js"></script><script src="js/i18n.js"></script><script src="script.js"></script>
+</body>
+</html>

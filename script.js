@@ -1,24 +1,27 @@
 (function () {
   "use strict";
 
-  var CONFIG = window.LISHCHYNA_PRICING || {};
-  var ORDER_EMAIL = "hello@lishchyna.example";
+  var CONFIG = window.HAZELOO_PRICING || {};
   var productsCache = null;
+    var STATUS_FLOW = ["processing", "confirmed", "delivered"];
+  var STATUS_LABELS = { processing: "Обробка", confirmed: "Підтверджено", delivered: "Доставлено", cancelled: "Скасовано" };
 
-  function money(value) {
-    return Math.round(Number(value) || 0).toLocaleString("uk-UA").replace(/\u00a0/g, " ") + " грн";
-  }
+  var t = I18N.t;
 
   function number(value) {
-    return Math.round(Number(value) || 0).toLocaleString("uk-UA").replace(/\u00a0/g, " ");
+    return Math.round(Number(value) || 0).toLocaleString("uk-UA").replace(/ /g, " ");
+  }
+
+  function money(value) {
+    return I18N.money(value);
   }
 
   function gg(value) {
-    return number(value) + " ГГ";
+    return number(value) + " " + t("ГГ");
   }
 
-  function kg(value) {
-    return (Number(value) || 0).toLocaleString("uk-UA", { maximumFractionDigits: 2 }) + " кг";
+  function signed(value) {
+    return (value > 0 ? "+" : value < 0 ? "−" : "") + money(Math.abs(value));
   }
 
   function escapeHtml(value) {
@@ -27,40 +30,24 @@
     });
   }
 
-  function getRetailPrice(product) {
-    return CONFIG.roundPrice ? CONFIG.roundPrice(product.gg * CONFIG.GG_RETAIL) : Math.round(product.gg * CONFIG.GG_RETAIL);
-  }
+  function byId(id) { return document.getElementById(id); }
 
-  function getOwnerPrice(product) {
-    return product.gg * CONFIG.GG_OWNER;
-  }
-  function initConfigLabels() {
-    document.querySelectorAll("[data-pick]").forEach(function (card) {
-      var packageData = CONFIG.SUBSCRIPTIONS && CONFIG.SUBSCRIPTIONS[card.dataset.pick];
-      if (!packageData) return;
-      var price = card.querySelector(".tpick__price");
-      var budget = card.querySelector(".tpick__kg");
-      if (price) price.innerHTML = money(packageData.price).replace(" грн", "") + " <small>грн</small>";
-      if (budget) budget.innerHTML = "Бюджет <b>" + gg(packageData.budget) + "</b> · <span>" + escapeHtml(packageData.harvest) + "</span>";
-      if (packageData.freeDelivery) {
-        var featureList = card.querySelector(".tpick__list");
-        if (featureList && !featureList.querySelector(".free-delivery")) featureList.insertAdjacentHTML("beforeend", "<li class=\"free-delivery\">Доставка включена</li>");
-      }
-    });
-    var typeSelect = document.getElementById("order_type");
-    if (typeSelect && CONFIG.SUBSCRIPTIONS) {
-      ["classic", "gourmet", "owner"].forEach(function (id) {
-        var option = typeSelect.querySelector('option[value="' + id + '"]');
-        if (option) option.textContent = "Підписка «" + CONFIG.SUBSCRIPTIONS[id].name + "» — " + money(CONFIG.SUBSCRIPTIONS[id].price);
+  function api(path, method, body) {
+    return fetch(path, {
+      method: method || "GET",
+      credentials: "same-origin",
+      headers: body ? { "Content-Type": "application/json" } : {},
+      body: body ? JSON.stringify(body) : undefined
+    }).then(function (response) {
+      return response.json().catch(function () { return {}; }).then(function (data) {
+        if (!response.ok) {
+          var error = new Error(t(data.error || "Помилка сервера"));
+          error.status = response.status;
+          throw error;
+        }
+        return data;
       });
-      var advent7 = typeSelect.querySelector('option[value="advent7"]');
-      var advent24 = typeSelect.querySelector('option[value="advent24"]');
-      if (advent7) advent7.textContent = "Адвент «7 днів» — " + money(CONFIG.ADVENT.seven.price);
-      if (advent24) advent24.remove();
-    }
-    var adventPrices = document.querySelectorAll(".offer-bottom strong");
-    if (adventPrices[0] && CONFIG.ADVENT) adventPrices[0].textContent = money(CONFIG.ADVENT.seven.price);
-
+    });
   }
 
   function getCart() {
@@ -68,21 +55,11 @@
   }
 
   function saveCart(cart) {
-    localStorage.setItem(CONFIG.SHOP_CART_KEY, JSON.stringify(cart));
-  }
-  function cooldownKey(phone, email) {
-    return "lishchyna-order-cooldown:" + String(phone || "").replace(/\D/g, "") + ":" + String(email || "").trim().toLowerCase();
+    try { localStorage.setItem(CONFIG.SHOP_CART_KEY, JSON.stringify(cart)); } catch (_) { /* приватний режим */ }
   }
 
-  function cooldownMessage(phone, email) {
-    var key = cooldownKey(phone, email);
-    var last = Number(localStorage.getItem(key) || 0);
-    var waitMs = CONFIG.ORDER_COOLDOWN_MS || 600000;
-    var left = waitMs - (Date.now() - last);
-    if (last && left > 0) {
-      return "Ми вже отримали заявку. Нову можна надіслати приблизно через " + Math.ceil(left / 60000) + " хв.";
-    }
-    return "";
+  function clearCart() {
+    try { localStorage.removeItem(CONFIG.SHOP_CART_KEY); } catch (_) { /* приватний режим */ }
   }
 
   function loadProducts(callback) {
@@ -98,10 +75,32 @@
       })
       .catch(function (error) {
         document.querySelectorAll("[data-products-error]").forEach(function (node) {
-          node.textContent = "Не вдалося завантажити каталог. Оновіть сторінку або напишіть нам.";
+          node.textContent = t("Не вдалося завантажити каталог. Оновіть сторінку або напишіть нам.");
         });
         console.error(error);
       });
+  }
+
+  function initConfigLabels() {
+    document.querySelectorAll("[data-price]").forEach(function (node) {
+      var key = node.dataset.price;
+      var value = CONFIG.SUBSCRIPTIONS && CONFIG.SUBSCRIPTIONS[key] ? CONFIG.SUBSCRIPTIONS[key].price
+        : key === "advent" ? CONFIG.ADVENT.seven.price
+        : key === "min" ? CONFIG.MIN_SHOP_ORDER : null;
+      if (value != null) node.textContent = money(value);
+    });
+    document.querySelectorAll("[data-budget]").forEach(function (node) {
+      var plan = CONFIG.SUBSCRIPTIONS && CONFIG.SUBSCRIPTIONS[node.dataset.budget];
+      if (plan) node.textContent = gg(plan.budget);
+    });
+  }
+
+  // нотатка про курс видима лише коли показано євро
+  function currencyNote() {
+    document.querySelectorAll("[data-cur-note]").forEach(function (node) {
+      node.hidden = I18N.cur !== "EUR";
+      node.textContent = t("Оплата здійснюється в гривнях. Суми в євро — орієнтовні за курсом 1 € = {rate} ₴.", { rate: I18N.rate });
+    });
   }
 
   function initHeader() {
@@ -127,7 +126,7 @@
   }
 
   function initReveal() {
-    var items = document.querySelectorAll(".reveal");
+    var items = document.querySelectorAll(".reveal:not(.is-in)");
     if (!("IntersectionObserver" in window)) {
       items.forEach(function (item) { item.classList.add("is-in"); });
       return;
@@ -143,21 +142,27 @@
     items.forEach(function (item) { observer.observe(item); });
   }
 
+  // ---------- Магазин: кошик ----------
   function initShop(products) {
-    var root = document.getElementById("shop-app");
-    var grid = document.getElementById("shop-products");
-    var list = document.getElementById("shop-cart-list");
-    var totalNode = document.getElementById("shop-total");
-    var note = document.getElementById("shop-note");
-    var checkout = document.getElementById("shop-checkout");
-    var status = document.getElementById("shop-status");
+    var root = byId("shop-app");
+    var grid = byId("shop-products");
+    var list = byId("shop-cart-list");
+    var totalNode = byId("shop-total");
+    var note = byId("shop-note");
+    var checkout = byId("shop-checkout");
     if (!root || !grid) return;
 
     var cart = getCart();
     products.forEach(function (product) { if (!Number.isFinite(cart[product.id])) cart[product.id] = 0; });
 
     function total() {
-      return products.reduce(function (sum, product) { return sum + (cart[product.id] || 0) * getRetailPrice(product); }, 0);
+      return products.reduce(function (sum, product) { return sum + (cart[product.id] || 0) * CONFIG.retailPrice(product); }, 0);
+    }
+
+    function renderGrid() {
+      grid.innerHTML = products.map(function (product) {
+        return '<article class="product-card"><div class="product-card__image"><img src="' + escapeHtml(product.image) + '" alt="' + escapeHtml(t(product.name)) + '" loading="lazy"></div><div class="product-card__body"><h3>' + escapeHtml(t(product.name)) + '</h3><p>' + escapeHtml(t(product.description)) + '</p><div class="product-card__meta"><strong>' + money(CONFIG.retailPrice(product)) + '</strong><span>' + escapeHtml(t(product.unit)) + '</span></div><button class="btn product-add" data-id="' + product.id + '">' + t("Додати") + ' <span class="arrow">+</span></button></div></article>';
+      }).join("");
     }
 
     function renderCart() {
@@ -165,23 +170,18 @@
       var sum = total();
       list.innerHTML = selected.length ? selected.map(function (product) {
         var qty = cart[product.id];
-        return '<li><span><b>' + escapeHtml(product.name) + '</b><small>' + qty + ' × ' + product.unit + '</small></span><span>' + money(qty * getRetailPrice(product)) + ' <button class="cart-step" data-cart-act="dec" data-id="' + product.id + '" aria-label="Менше">−</button><button class="cart-step" data-cart-act="inc" data-id="' + product.id + '" aria-label="Більше">+</button></span></li>';
-      }).join("") : '<li class="muted">Кошик порожній.</li>';
+        return '<li><span><b>' + escapeHtml(t(product.name)) + '</b><small>' + qty + ' × ' + escapeHtml(t(product.unit)) + '</small></span><span>' + money(qty * CONFIG.retailPrice(product)) + ' <button class="cart-step" data-cart-act="dec" data-id="' + product.id + '" aria-label="' + t("Менше") + '">−</button><button class="cart-step" data-cart-act="inc" data-id="' + product.id + '" aria-label="' + t("Більше") + '">+</button></span></li>';
+      }).join("") : '<li class="muted">' + t("Кошик порожній.") + '</li>';
       totalNode.textContent = money(sum);
       if (sum < CONFIG.MIN_SHOP_ORDER) {
-        note.textContent = "Мінімальне замовлення — " + money(CONFIG.MIN_SHOP_ORDER) + ". Залишилося додати " + money(Math.max(0, CONFIG.MIN_SHOP_ORDER - sum)) + ".";
+        note.textContent = t("Мінімальне замовлення — {min}. Залишилося додати {left}.", { min: money(CONFIG.MIN_SHOP_ORDER), left: money(CONFIG.MIN_SHOP_ORDER - sum) });
         checkout.setAttribute("aria-disabled", "true");
       } else {
-        note.textContent = "Доставка — за тарифами перевізника або самовивіз у Снятині.";
+        note.textContent = t("Доставка — Новою поштою за тарифами перевізника.");
         checkout.removeAttribute("aria-disabled");
       }
       saveCart(cart);
     }
-
-    grid.innerHTML = products.map(function (product) {
-      var price = getRetailPrice(product);
-      return '<article class="product-card reveal"><div class="product-card__image"><img src="' + escapeHtml(product.image) + '" alt="' + escapeHtml(product.name) + '" loading="lazy"></div><div class="product-card__body"><h3>' + escapeHtml(product.name) + '</h3><p>' + escapeHtml(product.description) + '</p><div class="product-card__meta"><strong>' + money(price) + '</strong><span>' + product.unit + '</span></div><small class="product-card__gg">Витрата: ' + gg(product.gg) + '</small><button class="btn product-add" data-id="' + product.id + '">Додати <span class="arrow">+</span></button></div></article>';
-    }).join("");
 
     grid.addEventListener("click", function (event) {
       var button = event.target.closest("[data-id]");
@@ -197,306 +197,329 @@
       renderCart();
     });
     checkout.addEventListener("click", function (event) {
-      if (total() < CONFIG.MIN_SHOP_ORDER) {
-        event.preventDefault();
-        if (status) status.textContent = "Додайте товарів, щоб сума досягла мінімуму " + money(CONFIG.MIN_SHOP_ORDER) + ".";
-      }
+      if (total() < CONFIG.MIN_SHOP_ORDER) event.preventDefault();
     });
+    renderGrid();
     renderCart();
-    initReveal();
+    I18N.onChange(function () { renderGrid(); renderCart(); });
   }
 
-  function initCertificate(products) {
-    var form = document.getElementById("order-form");
+  // ---------- Сторінка замовлення ----------
+  function initOrder(products) {
+    var form = byId("order-form");
     if (!form) return;
 
-    var subscriptions = CONFIG.SUBSCRIPTIONS;
-    var typeSelect = form.elements["order_type"];
-    var treeInput = form.elements["tree_name"];
-    var recipientInput = form.elements["recipient"];
-    var status = document.getElementById("form-status");
-    var productTable = document.getElementById("subscription-products");
-    var builder = document.getElementById("subscription-builder");
-    var adventVariant = form.elements["advent_variant"];
-    var adultInput = form.elements["adult"];
-    var adultField = adultInput ? adultInput.closest(".check") : null;
-    var state = { type: "gourmet", qty: {} };
+    var params = new URLSearchParams(window.location.search);
+    var plans = CONFIG.SUBSCRIPTIONS;
+    var state = { subscription: "", sub: {}, extra: {}, advent: 0, user: null, busy: false };
+    var cart = getCart();
+    products.forEach(function (product) {
+      state.sub[product.id] = 0;
+      state.extra[product.id] = Math.max(0, Math.floor(Number(cart[product.id]) || 0));
+    });
+    if (plans[params.get("sub")]) state.subscription = params.get("sub");
+    if (params.get("advent")) state.advent = 1;
 
-    products.forEach(function (product) { state.qty[product.id] = 0; });
+    var pick = byId("plan-pick");
+    var table = byId("order-products");
+    var status = byId("form-status");
 
-    function isSubscription() { return Boolean(subscriptions[state.type]); }
-    function currentPackage() { return subscriptions[state.type] || null; }
-    function usedBudget() {
-      return products.reduce(function (sum, product) { return sum + state.qty[product.id] * product.gg; }, 0);
-    }
-    function productTotal() {
-      var owner = isSubscription();
-      return products.reduce(function (sum, product) {
-        var price = owner ? getOwnerPrice(product) : getRetailPrice(product);
-        return sum + state.qty[product.id] * price;
-      }, 0);
-    }
-    function selectedItems() {
-      return products.filter(function (product) { return state.qty[product.id] > 0; }).map(function (product) {
-        var quantity = state.qty[product.id];
-        var price = isSubscription() ? getOwnerPrice(product) : getRetailPrice(product);
-        return { name: product.name, quantity: quantity, size: quantity + " × " + product.unit, price: quantity * price, kernel: quantity * product.kernel_g, gg: quantity * product.gg };
-      });
-    }
-    function adventOffer() {
-      return state.type === "advent24" ? CONFIG.ADVENT.twentyFour : CONFIG.ADVENT.seven;
-    }
-    function orderTitle() {
-      if (state.type === "shop") return "Замовлення з магазину";
-      if (state.type === "advent7") return CONFIG.ADVENT.seven.name;
-      if (state.type === "advent24") return CONFIG.ADVENT.twentyFour.name;
-      return currentPackage().name;
-    }
-    function total() {
-      if (isSubscription()) {
-        var surcharge = Math.max(0, usedBudget() - currentPackage().budget) * CONFIG.GG_OWNER;
-        return currentPackage().price + surcharge;
-      }
-      if (state.type === "shop") return productTotal();
-      return adventOffer().price;
-    }
-    function nextPackageId() {
-      var ids = ["classic", "gourmet", "owner"];
-      var index = ids.indexOf(state.type);
-      return index >= 0 && index < ids.length - 1 ? ids[index + 1] : "";
-    }
-    function show(node, visible) { if (node) node.hidden = !visible; }
-
-    function setType(type) {
-      if (!type) return;
-      state.type = type;
-      typeSelect.value = type;
-      render();
-      syncFields();
+    function calc() {
+      return CONFIG.calculate(products, { subscription: state.subscription, sub: state.sub, extra: state.extra, advent: state.advent });
     }
 
-    function setReadySet(id) {
-      var ids = CONFIG.READY_SETS[id] || [];
-      products.forEach(function (product) { state.qty[product.id] = ids.indexOf(product.id) >= 0 ? 1 : 0; });
-      if (subscriptions[id]) state.type = id;
-      typeSelect.value = state.type;
-      render();
-      syncFields();
-    }
-
-    function renderProducts() {
-      if (!productTable) return;
-      productTable.innerHTML = '<div class="ptable__head" role="row"><span>Продукт</span><span>Для власника</span><span>Бюджет</span><span>Кількість</span></div>' + products.map(function (product) {
-        var quantity = state.qty[product.id];
-        var price = isSubscription() ? getOwnerPrice(product) : getRetailPrice(product);
-        return '<div class="prow ' + (quantity ? "is-picked" : "") + '" role="row" data-id="' + product.id + '"><div class="prow__name"><b>' + escapeHtml(product.name) + '</b><span>' + escapeHtml(product.description) + '</span></div><div class="prow__price" data-l="Ціна">' + money(price) + ' <small>/ ' + product.unit + '</small></div><div class="prow__kernel" data-l="ГГ">−' + gg(product.gg) + '</div><div class="stepper" data-l="Кількість"><button type="button" class="stepper__b" data-act="dec" aria-label="Менше: ' + escapeHtml(product.name) + '">−</button><output class="stepper__v" aria-live="polite">' + quantity + '</output><button type="button" class="stepper__b" data-act="inc" aria-label="Більше: ' + escapeHtml(product.name) + '">+</button><span class="stepper__sz">× ' + product.unit + '</span></div></div>';
+    function renderPlans() {
+      var options = [{ id: "", name: t("Без підписки"), note: t("Лише продукти") }].concat(Object.keys(plans).map(function (id) {
+        return { id: id, name: t(plans[id].name), note: money(plans[id].price) + " · " + gg(plans[id].budget) };
+      }));
+      pick.innerHTML = options.map(function (option) {
+        var on = option.id === state.subscription;
+        return '<button type="button" class="plan-opt' + (on ? " is-on" : "") + '" role="radio" aria-checked="' + on + '" data-plan="' + option.id + '"><b>' + escapeHtml(option.name) + '</b><span>' + escapeHtml(option.note) + '</span></button>';
       }).join("");
     }
 
-    function render() {
-      var packageData = currentPackage();
-      var budget = packageData ? packageData.budget : 0;
-      var used = isSubscription() ? usedBudget() : 0;
-      var surcharge = isSubscription() ? Math.max(0, used - budget) * CONFIG.GG_OWNER : 0;
-      var items = selectedItems();
-      var summaryList = document.getElementById("sum-list");
-      var totalNode = document.getElementById("sum-total");
-      var packageNode = document.getElementById("sum-package");
-      var summaryHint = document.querySelector(".summary__hint");
-      var usedNode = document.getElementById("sum-used");
-      var budgetNode = document.getElementById("sum-budget");
-      var leftNode = document.getElementById("sum-left");
-      var surchargeNode = document.getElementById("sum-surcharge");
-      var meter = document.getElementById("meter-bar");
+    function stepper(group, id, qty, label) {
+      return '<div class="stepper" data-group="' + group + '" data-id="' + id + '"><button type="button" class="stepper__b" data-act="dec" aria-label="' + escapeHtml(t("Менше") + ": " + label) + '"' + (qty ? "" : " disabled") + '>−</button><output class="stepper__v">' + qty + '</output><button type="button" class="stepper__b" data-act="inc" aria-label="' + escapeHtml(t("Більше") + ": " + label) + '">+</button></div>';
+    }
 
-      document.querySelectorAll("[data-pick]").forEach(function (card) {
-        var active = card.dataset.pick === state.type;
-        card.classList.toggle("is-on", active);
-        card.setAttribute("aria-checked", active ? "true" : "false");
+    function productRows(group) {
+      return products.map(function (product) {
+        var qty = state[group][product.id];
+        var note = group === "sub" ? gg(product.gg) + " " + t("з бюджету") : money(CONFIG.retailPrice(product)) + " / " + escapeHtml(t(product.unit));
+        return '<div class="orow' + (qty ? " is-picked" : "") + '"><div class="orow__name"><b>' + escapeHtml(t(product.name)) + '</b><span>' + note + '</span></div><div class="orow__cell" data-l="' + t("Кількість") + '">' + stepper(group, product.id, qty, t(product.name)) + '</div></div>';
+      }).join("");
+    }
+
+    function renderProducts() {
+      var hasPlan = Boolean(state.subscription);
+      byId("block-sub").hidden = !hasPlan;
+      byId("extra-title").textContent = t(hasPlan ? "Додатково" : "Продукти");
+      byId("sub-hint").textContent = hasPlan ? t("Продукти з бюджету пакета — доплати немає. Фасування {unit}.", { unit: t(products[0].unit) }) : "";
+      byId("products-hint").textContent = hasPlan
+        ? t("Необовʼязково: окремо від підписки, за магазинними цінами.")
+        : t("Ціни за фасування. Мінімальна сума продуктів — {min}.", { min: money(CONFIG.MIN_SHOP_ORDER) });
+      var advent = CONFIG.ADVENT.seven;
+      var adventRow = '<div class="orow orow--advent' + (state.advent ? " is-picked" : "") + '"><div class="orow__name"><b>' + escapeHtml(t(advent.name)) + '</b><span>' + money(advent.price) + ' · ' + t("без алкоголю") + '</span></div><div class="orow__cell" data-l="' + t("Кількість") + '">' + stepper("advent", "advent", state.advent, t(advent.name)) + '</div></div>';
+      byId("order-sub").innerHTML = hasPlan ? productRows("sub") : "";
+      table.innerHTML = productRows("extra") + adventRow;
+      document.querySelectorAll("[data-n]").forEach(function (node, i, all) {
+        var visible = Array.prototype.filter.call(all, function (n) { return !n.closest("[hidden]"); });
+        node.textContent = visible.indexOf(node) + 1;
       });
-      if (builder) builder.classList.toggle("is-off", !isSubscription() && state.type !== "shop");
-      renderProducts();
-      if (summaryList) summaryList.innerHTML = items.length ? items.map(function (item) { return "<li><span>" + escapeHtml(item.name) + " <em>" + escapeHtml(item.size) + "</em></span><span>" + money(item.price) + "</span></li>"; }).join("") : '<li class="muted">Продукти можна обрати зараз або пізніше.</li>';
-      if (packageNode) packageNode.textContent = isSubscription() ? packageData.name + " · " + money(packageData.price) : orderTitle();
-      if (usedNode) usedNode.textContent = isSubscription() ? gg(used) : "—";
-      if (budgetNode) budgetNode.textContent = isSubscription() ? gg(budget) : "—";
-      if (leftNode) leftNode.textContent = isSubscription() ? gg(Math.max(0, budget - used)) : "—";
-      if (surchargeNode) surchargeNode.textContent = surcharge ? money(surcharge) : "0 грн";
-      if (totalNode) totalNode.textContent = money(total());
-      if (meter) {
-        meter.style.width = isSubscription() ? Math.min(100, budget ? used / budget * 100 : 0) + "%" : "0%";
-        meter.classList.toggle("is-over", surcharge > 0);
-      }
-      document.querySelectorAll(".prow").forEach(function (row) {
-        var product = products.filter(function (item) { return item.id === row.dataset.id; })[0];
-        var quantity = state.qty[product.id];
-        row.querySelector(".stepper__v").textContent = quantity;
-        row.querySelector('[data-act="dec"]').disabled = quantity === 0;
-        row.querySelector('[data-act="inc"]').disabled = !isSubscription() && state.type !== "shop";
-      });
-      if (summaryHint) {
-        if (!isSubscription()) {
-          summaryHint.textContent = "До двох відправок на рік включено для підписки.";
-        } else if (surcharge > 0) {
-          var upgradeId = nextPackageId();
-          var upgrade = upgradeId ? subscriptions[upgradeId] : null;
-          summaryHint.innerHTML = upgrade
-            ? "Бюджет перевищено. <button type=\"button\" class=\"link-button\" id=\"upgrade-package\">Перейти на «" + escapeHtml(upgrade.name) + "» за " + money(upgrade.price) + "</button> або залишити доплату " + money(surcharge) + "."
-            : "Бюджет перевищено на " + gg(used - budget) + ". Доплата — " + money(surcharge) + ".";
-          var upgradeButton = document.getElementById("upgrade-package");
-          if (upgradeButton) upgradeButton.addEventListener("click", function () { setType(upgradeId); });
-        } else if (used < budget) {
-          summaryHint.textContent = "Залишок " + gg(budget - used) + " збережеться як знижка на продовження.";
+    }
+
+    function renderSummary() {
+      var result = calc();
+      var plan = result.subscription;
+      var list = byId("sum-list");
+      var regulator = byId("regulator");
+      var adjustRow = byId("sum-adjust-row");
+
+      byId("sum-plan").textContent = plan ? t("Підписка «{name}» · {price}", { name: t(plan.name), price: money(plan.basePrice) }) : t(result.empty ? "Оберіть підписку або продукти" : "Замовлення без підписки");
+      list.innerHTML = result.lines.length ? result.lines.map(function (line) {
+        var right = line.group === "subscription" ? t("у підписці") : money(line.price);
+        return "<li><span>" + escapeHtml(t(line.name)) + " <em>× " + line.qty + "</em></span><span>" + right + "</span></li>";
+      }).join("") : '<li class="muted">' + t("Поки порожньо.") + '</li>';
+
+      regulator.hidden = !plan;
+      adjustRow.hidden = !plan || !plan.adjust;
+      if (plan) {
+        var scale = plan.maxGG * 1.15;
+        byId("reg-zone").style.left = plan.minGG / scale * 100 + "%";
+        byId("reg-zone").style.width = (plan.maxGG - plan.minGG) / scale * 100 + "%";
+        byId("reg-fill").style.width = Math.min(100, plan.usedGG / scale * 100) + "%";
+        var text;
+        if (!plan.usedGG) {
+          text = t("Бюджет {budget}. Продукти можна обрати зараз або пізніше — без них діє ціна пакета.", { budget: gg(plan.budget) });
+        } else if (plan.usedGG < plan.minGG) {
+          text = t("Набрано {used} із {budget}. Додайте ще від {need}, щоб ціна підлаштувалась, або залишок {credit} збережеться на наступну відправку.", { used: gg(plan.usedGG), budget: gg(plan.budget), need: gg(plan.minGG - plan.usedGG), credit: gg(plan.credit) });
+        } else if (plan.usedGG <= plan.maxGG) {
+          text = plan.adjust
+            ? t("Набрано {used} із {budget}: ціна підлаштована ({adjust}).", { used: gg(plan.usedGG), budget: gg(plan.budget), adjust: signed(plan.adjust) })
+            : t("Набрано {used} із {budget}: ціна підлаштована, точно в бюджет.", { used: gg(plan.usedGG), budget: gg(plan.budget) });
         } else {
-          summaryHint.textContent = "Бюджет використано. До двох відправок на рік включено.";
+          text = t("Набрано {used} — понад бюджет {budget}. Ціна зростає на {adjust}, або оберіть вищий пакет.", { used: gg(plan.usedGG), budget: gg(plan.budget), adjust: money(plan.adjust) });
         }
+        byId("reg-txt").textContent = text;
+        byId("sum-adjust").textContent = signed(plan.adjust);
       }
-      var formSummary = document.getElementById("order-sum-body");
-      if (formSummary) formSummary.innerHTML = "<b>" + escapeHtml(orderTitle()) + "</b><br>До сплати: <b>" + money(total()) + "</b>" + (isSubscription() ? "<br>Горіховий бюджет: " + gg(used) + " із " + gg(budget) : "") + (isSubscription() && used < budget ? "<br>Залишок: " + gg(budget - used) + " — знижка на продовження" : "") + (surcharge ? "<br>Доплата за перевищення: " + money(surcharge) : "");
+      byId("sum-total").textContent = money(result.total);
+      return result;
     }
 
-    function syncFields() {
-      var subscription = isSubscription();
-      var packageData = currentPackage();
-      var advent = state.type === "advent7" || state.type === "advent24";
-      var alcohol = advent && adventVariant && adventVariant.value.indexOf("алкогол") >= 0;
-      var treeField = treeInput ? treeInput.closest(".field") : null;
-      var recipientField = recipientInput ? recipientInput.closest(".field") : null;
-      var typeNote = document.getElementById("order-type-note");
-      show(builder, subscription || state.type === "shop");
-      show(document.getElementById("advent-variant"), advent);
-      show(adultField, advent);
-      show(treeField, subscription);
-      show(recipientField, subscription);
-      if (treeInput) treeInput.required = subscription;
-      if (recipientInput) recipientInput.required = subscription;
-      if (adultInput) {
-        adultInput.required = alcohol;
-        if (!alcohol) adultInput.checked = false;
-      }
-      if (typeNote) {
-        typeNote.textContent = packageData && packageData.freeDelivery
-          ? "Доставка для пакета «Господар дерева» включена у ціну. До двох відправок на рік."
-          : subscription
-            ? "Продукти можна обрати зараз або пізніше. До двох відправок на рік включено."
-            : "Заявка піде в таблицю замовлень і Telegram.";
-      }
-      updateTag();
+    function render() {
+      renderPlans();
+      renderProducts();
+      renderSummary();
     }
 
-    function updateTag() {
-      var tagName = document.getElementById("tag-name");
-      var tagFor = document.getElementById("tag-for");
-      if (tagName) tagName.textContent = (treeInput && treeInput.value.trim()) || "Назва дерева";
-      if (tagFor) tagFor.textContent = (recipientInput && recipientInput.value.trim()) || "імʼя одержувача";
+    function renderAccount() {
+      var guest = !state.user;
+      byId("password-field").hidden = !guest;
+      byId("password").required = guest;
+      byId("account-note").innerHTML = guest
+        ? escapeHtml(t("Для відстеження замовлення створимо кабінет. Вже реєструвалися? ")) + '<a href="cabinet.html" class="link-line">' + t("Увійти") + '</a>'
+        : escapeHtml(t("Ви увійшли як {name}. Статус замовлення — у ", { name: state.user.name })) + '<a href="cabinet.html" class="link-line">' + t("кабінеті") + '</a>.';
+      if (state.user) {
+        if (!form.elements.name.value) form.elements.name.value = state.user.name;
+        if (!form.elements.phone.value) form.elements.phone.value = "+" + state.user.phone;
+      }
     }
 
-    document.querySelectorAll("[data-pick]").forEach(function (card) {
-      card.addEventListener("click", function () { setType(card.dataset.pick); });
-      card.addEventListener("keydown", function (event) { if (event.key === "Enter" || event.key === " ") { event.preventDefault(); setType(card.dataset.pick); } });
+    pick.addEventListener("click", function (event) {
+      var button = event.target.closest("[data-plan]");
+      if (!button) return;
+      state.subscription = button.dataset.plan;
+      if (!state.subscription) products.forEach(function (product) { state.sub[product.id] = 0; });
+      render();
     });
-    document.querySelectorAll("[data-ready]").forEach(function (button) { button.addEventListener("click", function () { setReadySet(button.dataset.ready); }); });
-    if (productTable) {
-      productTable.addEventListener("click", function (event) {
-        var button = event.target.closest(".stepper__b");
-        if (!button) return;
-        var row = button.closest(".prow");
-        var product = products.filter(function (item) { return item.id === row.dataset.id; })[0];
-        state.qty[product.id] = Math.max(0, state.qty[product.id] + (button.dataset.act === "inc" ? 1 : -1));
-        render();
-      });
+    function onStep(event) {
+      var button = event.target.closest(".stepper__b");
+      if (!button) return;
+      var box = button.closest(".stepper");
+      var delta = button.dataset.act === "inc" ? 1 : -1;
+      var max = CONFIG.MAX_QTY || 50;
+      if (box.dataset.group === "advent") state.advent = Math.max(0, Math.min(max, state.advent + delta));
+      else state[box.dataset.group][box.dataset.id] = Math.max(0, Math.min(max, state[box.dataset.group][box.dataset.id] + delta));
+      renderProducts();
+      renderSummary();
     }
-    if (typeSelect) typeSelect.addEventListener("change", function () { setType(typeSelect.value); });
-    if (adventVariant) adventVariant.addEventListener("change", syncFields);
-    if (treeInput) treeInput.addEventListener("input", updateTag);
-    if (recipientInput) recipientInput.addEventListener("input", updateTag);
-    var queryType = new URLSearchParams(window.location.search).get("type");
-    if (queryType && (subscriptions[queryType] || queryType === "shop" || queryType === "advent7")) state.type = queryType;
-    if (state.type === "shop") {
-      var savedCart = getCart();
-      products.forEach(function (product) { state.qty[product.id] = Number(savedCart[product.id]) || 0; });
-    }
-    typeSelect.value = state.type;
-    render();
-    syncFields();
+    table.addEventListener("click", onStep);
+    byId("order-sub").addEventListener("click", onStep);
 
     form.addEventListener("submit", function (event) {
       event.preventDefault();
-      if (state.type === "shop" && total() < CONFIG.MIN_SHOP_ORDER) {
-        status.textContent = "Мінімальне замовлення з магазину — " + money(CONFIG.MIN_SHOP_ORDER) + ".";
-        return;
-      }
+      if (state.busy) return;
+      var result = calc();
+      if (result.empty) { status.textContent = t("Оберіть підписку або продукти."); return; }
+      if (!result.minOrderOk) { status.textContent = t("Мінімальна сума продуктів — {min}.", { min: money(CONFIG.MIN_SHOP_ORDER) }); return; }
       if (!form.reportValidity()) return;
       var data = new FormData(form);
-      var repeatMessage = cooldownMessage(data.get("phone"), data.get("email"));
-      if (repeatMessage) {
-        status.textContent = repeatMessage;
+      state.busy = true;
+      status.textContent = t("Надсилаємо…");
+      api("/api/orders", "POST", {
+        name: data.get("name"),
+        phone: data.get("phone"),
+        branch: data.get("branch"),
+        password: data.get("password") || undefined,
+        subscription: state.subscription || null,
+        sub: state.sub,
+        extra: state.extra,
+        advent: state.advent
+      }).then(function (response) {
+        clearCart();
+        form.hidden = true;
+        byId("order-done").hidden = false;
+        byId("done-id").textContent = "#" + response.order.id;
+        window.scrollTo({ top: 0, behavior: "smooth" });
+      }).catch(function (error) {
+        status.textContent = error.message || t("Не вдалося надіслати. Спробуйте ще раз.");
+      }).then(function () { state.busy = false; });
+    });
+
+    render();
+    renderAccount();
+    I18N.onChange(function () { render(); renderAccount(); });
+    api("/api/me").then(function (data) {
+      state.user = data.user;
+      renderAccount();
+    }).catch(function () { /* залишаємо форму гостя */ });
+  }
+
+  // ---------- Кабінет ----------
+  function initCabinet() {
+    var authBox = byId("auth");
+    if (!authBox) return;
+    var accountBox = byId("account");
+    var ordersBox = byId("orders");
+    var mode = "login";
+    var lastOrders = null;
+
+    function setMode(next) {
+      mode = next;
+      document.querySelectorAll(".auth__tabs button").forEach(function (button) { button.classList.toggle("is-on", button.dataset.tab === mode); });
+      byId("auth-name-field").hidden = mode !== "register";
+      byId("auth-name").required = mode === "register";
+      byId("auth-password").autocomplete = mode === "register" ? "new-password" : "current-password";
+      byId("auth-submit").firstChild.textContent = t(mode === "register" ? "Створити кабінет" : "Увійти") + " ";
+      byId("auth-status").textContent = "";
+    }
+
+    function dateText(iso) {
+      var date = new Date(iso.replace(" ", "T"));
+      return isNaN(date) ? "" : date.toLocaleString(I18N.lang === "en" ? "en-GB" : "uk-UA", { day: "numeric", month: "long", hour: "2-digit", minute: "2-digit" });
+    }
+
+    function tracker(order) {
+      if (order.status === "cancelled") return '<div class="track track--cancelled">' + t("Скасовано") + '</div>';
+      var index = STATUS_FLOW.indexOf(order.status);
+      return '<ol class="track">' + STATUS_FLOW.map(function (key, i) {
+        return '<li class="' + (i < index ? "is-done" : i === index ? "is-now" : "") + '"><i></i>' + t(STATUS_LABELS[key]) + '</li>';
+      }).join("") + '</ol>';
+    }
+
+    function orderCard(order) {
+      var items = order.items.map(function (item) {
+        var right = item.kind === "subscription" ? t("у підписці") : money(item.price);
+        return "<li><span>" + escapeHtml(t(item.name)) + " × " + item.qty + "</span><span>" + right + "</span></li>";
+      }).join("");
+      var plan = order.subscription
+        ? '<p class="order-card__plan">' + escapeHtml(t("Підписка «{name}» · {price}", { name: t(order.subscription.name), price: money(order.subscription.price) }) + (order.subscription.creditGG ? t(" · залишок бюджету {credit}", { credit: gg(order.subscription.creditGG) }) : "")) + '</p>' : "";
+      var action = order.canCancel
+        ? '<div class="order-card__actions"><button type="button" class="btn btn--ghost" data-cancel="' + order.id + '">' + t("Скасувати замовлення") + '</button></div>'
+        : order.status === "confirmed" ? '<p class="hint">' + t("Замовлення підтверджено — для змін зателефонуйте нам.") + '</p>' : "";
+      return '<article class="order-card' + (order.status === "cancelled" ? " is-cancelled" : "") + '"><header><div><b>#' + escapeHtml(order.id) + '</b><span>' + dateText(order.createdAt) + '</span></div><strong>' + money(order.total) + '</strong></header>' +
+        tracker(order) + plan + '<ul class="order-card__items">' + items + '</ul><p class="hint">' + escapeHtml(t("Нова пошта: {branch}", { branch: order.branch })) + '</p>' + action + '</article>';
+    }
+
+    function renderOrders() {
+      if (!lastOrders) return;
+      ordersBox.innerHTML = lastOrders.length ? lastOrders.map(orderCard).join("")
+        : '<p class="muted">' + t("Замовлень ще немає. ") + '<a href="order.html" class="link-line">' + t("Зробити перше →") + '</a></p>';
+    }
+
+    function loadOrders() {
+      ordersBox.innerHTML = '<p class="muted">' + t("Завантаження…") + '</p>';
+      api("/api/orders").then(function (data) {
+        lastOrders = data.orders;
+        renderOrders();
+      }).catch(function (error) {
+        if (error.status === 401) showAuth();
+        else ordersBox.innerHTML = '<p class="muted">' + escapeHtml(error.message) + '</p>';
+      });
+    }
+
+    function showAccount(user) {
+      authBox.hidden = true;
+      accountBox.hidden = false;
+      byId("acc-name").textContent = user.name;
+      byId("acc-phone").textContent = "+" + user.phone;
+      loadOrders();
+    }
+
+    function showAuth() {
+      accountBox.hidden = true;
+      authBox.hidden = false;
+    }
+
+    document.querySelectorAll(".auth__tabs button").forEach(function (button) {
+      button.addEventListener("click", function () { setMode(button.dataset.tab); });
+    });
+    byId("auth-form").addEventListener("submit", function (event) {
+      event.preventDefault();
+      var form = event.target;
+      var statusNode = byId("auth-status");
+      if (!form.reportValidity()) return;
+      statusNode.textContent = "…";
+      api(mode === "register" ? "/api/register" : "/api/login", "POST", {
+        name: form.elements.name.value,
+        phone: form.elements.phone.value,
+        password: form.elements.password.value
+      }).then(function (data) {
+        form.reset();
+        statusNode.textContent = "";
+        showAccount(data.user);
+      }).catch(function (error) { statusNode.textContent = error.message; });
+    });
+    byId("logout").addEventListener("click", function () {
+      api("/api/logout", "POST", {}).then(showAuth);
+    });
+    ordersBox.addEventListener("click", function (event) {
+      var button = event.target.closest("[data-cancel]");
+      if (!button) return;
+      if (button.dataset.armed !== "1") {
+        button.dataset.armed = "1";
+        button.textContent = t("Підтвердити скасування");
         return;
       }
-      localStorage.setItem(cooldownKey(data.get("phone"), data.get("email")), String(Date.now()));
-
-      var items = selectedItems();
-      var packageData = currentPackage();
-      var selectedTotal = total();
-      var lines = ["Нове замовлення", "Тип: " + orderTitle(), "До сплати: " + money(selectedTotal), ""];
-      if (packageData) lines.push("Горіховий бюджет: " + gg(usedBudget()) + " із " + gg(packageData.budget));
-      if (items.length) {
-        lines.push("Продукти:");
-        items.forEach(function (item) { lines.push("• " + item.name + " — " + item.size + " = " + money(item.price)); });
-      }
-      lines.push("", "Покупець: " + data.get("buyer"), "Телефон: " + data.get("phone"), "Email: " + (data.get("email") || "—"), "Доставка: " + data.get("delivery"));
-      if (packageData && packageData.freeDelivery) lines.push("Доставка: включена у пакет");
-
-      if (data.get("tree_name")) lines.push("Назва дерева: " + data.get("tree_name"));
-      if (data.get("recipient")) lines.push("Одержувач: " + data.get("recipient"));
-      if (data.get("occasion")) lines.push("Нагода: " + data.get("occasion"));
-      if (data.get("message")) lines.push("Побажання: " + data.get("message"));
-      if (data.get("advent_variant")) lines.push("Версія адвенту: " + data.get("advent_variant"));
-      var payload = {
-        createdAt: new Date().toISOString(),
-        type: state.type,
-        tier: orderTitle(),
-        tree: isSubscription(),
-        treeName: data.get("tree_name") || "",
-        recipient: data.get("recipient") || "",
-        occasion: data.get("occasion") || "",
-        message: data.get("message") || "",
-        buyer: data.get("buyer") || "",
-        phone: data.get("phone") || "",
-        email: data.get("email") || "",
-        delivery: data.get("delivery") || "",
-        adventVariant: data.get("advent_variant") || "",
-        adultConfirmed: data.get("adult") === "on",
-        treeFee: packageData ? packageData.price : 0,
-        freeDelivery: Boolean(packageData && packageData.freeDelivery),
-        productsTotal: productTotal(),
-        total: selectedTotal,
-        kernelUsed: usedBudget(),
-        surcharge: packageData ? Math.max(0, usedBudget() - packageData.budget) * CONFIG.GG_OWNER : 0,
-        items: items,
-        text: lines.join("\n")
-      };
-      status.textContent = "Надсилаємо заявку…";
-      fetch(CONFIG.ORDER_ENDPOINT, { method: "POST", mode: "no-cors", headers: { "Content-Type": "text/plain;charset=UTF-8" }, body: JSON.stringify(payload) })
-        .then(function () {
-          status.textContent = "Заявку надіслано. Ми звʼяжемося з вами найближчим часом.";
-          if (state.type === "shop") localStorage.removeItem(CONFIG.SHOP_CART_KEY);
-        })
-        .catch(function () {
-          var href = "mailto:" + ORDER_EMAIL + "?subject=" + encodeURIComponent("Замовлення — " + orderTitle()) + "&body=" + encodeURIComponent(lines.join("\n"));
-          status.textContent = "Не вдалося надіслати автоматично. Відкриваємо поштовий застосунок.";
-          window.location.href = href;
+      button.disabled = true;
+      api("/api/orders/" + encodeURIComponent(button.dataset.cancel) + "/cancel", "POST", {})
+        .then(loadOrders)
+        .catch(function (error) {
+          button.disabled = false;
+          button.insertAdjacentHTML("afterend", '<p class="form-status">' + escapeHtml(error.message) + "</p>");
+          loadOrders();
         });
+    });
+
+    setMode("login");
+    I18N.onChange(function () { setMode(mode); renderOrders(); });
+    api("/api/me").then(function (data) {
+      if (data.user) showAccount(data.user); else showAuth();
+    }).catch(function () {
+      showAuth();
+      byId("auth-status").textContent = t("Сервер недоступний. Спробуйте пізніше.");
     });
   }
 
   initHeader();
   initConfigLabels();
+  currencyNote();
+  I18N.onChange(function () { initConfigLabels(); currencyNote(); });
   initReveal();
-  var shop = document.getElementById("shop-app");
-  var certificate = document.getElementById("order-form");
-  if (shop || certificate) loadProducts(function (products) {
-    if (shop) initShop(products);
-    if (certificate) initCertificate(products);
+  initCabinet();
+  if (byId("shop-app") || byId("order-form")) loadProducts(function (products) {
+    initShop(products);
+    initOrder(products);
   });
 })();

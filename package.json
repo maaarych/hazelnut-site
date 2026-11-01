@@ -1,0 +1,10 @@
+{
+  "name": "hazelnut-site",
+  "private": true,
+  "description": "Сайт і API фундукового саду «Hazeloo»",
+  "engines": { "node": ">=22.13" },
+  "scripts": {
+    "start": "node --disable-warning=ExperimentalWarning server.js",
+    "order-status": "node --disable-warning=ExperimentalWarning scripts/order-status.js"
+  }
+}
