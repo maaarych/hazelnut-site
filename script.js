@@ -1,7 +1,7 @@
 (function () {
   "use strict";
 
-  var CONFIG = window.HAZELOO_PRICING || {};
+  var CONFIG = window.HAZELY_PRICING || {};
   var productsCache = null;
     var STATUS_FLOW = ["processing", "confirmed", "delivered"];
   var STATUS_LABELS = { processing: "Обробка", confirmed: "Підтверджено", delivered: "Доставлено", cancelled: "Скасовано" };

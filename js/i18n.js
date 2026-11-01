@@ -9,8 +9,8 @@
     "Основна навігація": "Main navigation",
     "Мова": "Language",
     "Валюта": "Currency",
-    "Hazeloo": "Hazeloo",
-    "Hazeloo — на головну": "Hazeloo — home",
+    "Hazely": "Hazely",
+    "Hazely — на головну": "Hazely — home",
     "Фундуковий сад · Снятин": "Hazelnut orchard · Snyatyn",
     "Магазин": "Shop",
     "Підписка": "Subscription",
@@ -19,7 +19,7 @@
     "Кабінет": "Account",
     "Замовити": "Order",
     "Умови": "Terms",
-    "© 2026 Фундуковий сад «Hazeloo»": "© 2026 Hazeloo Hazelnut Orchard",
+    "© 2026 Фундуковий сад «Hazely»": "© 2026 Hazely Hazelnut Orchard",
     "Обрати": "Choose",
     "Оберіть": "Choose",
     "Оформити": "Checkout",
@@ -44,8 +44,8 @@
     "необовʼязково": "optional",
 
     // --- головна ---
-    "Hazeloo — замовити фундук із саду в Снятині": "Hazeloo — order hazelnuts from our orchard in Snyatyn",
-    "Фундук, паста, шоколад і підписка на іменне дерево з екологічного саду «Hazeloo». Замовлення онлайн, доставка Новою поштою.": "Hazelnuts, paste, chocolate and a named-tree subscription from the organic Hazeloo orchard. Order online, delivery by Nova Poshta.",
+    "Hazely — замовити фундук із саду в Снятині": "Hazely — order hazelnuts from our orchard in Snyatyn",
+    "Фундук, паста, шоколад і підписка на іменне дерево з екологічного саду «Hazely». Замовлення онлайн, доставка Новою поштою.": "Hazelnuts, paste, chocolate and a named-tree subscription from the organic Hazely orchard. Order online, delivery by Nova Poshta.",
     "Ряди фундукових дерев у ранковому тумані": "Rows of hazelnut trees in the morning mist",
     "Фундук із саду —": "Hazelnuts from the orchard —",
     "замовте за хвилину": "order in a minute",
@@ -66,12 +66,12 @@
     "Імʼя, телефон і відділення Нової пошти.": "Name, phone and Nova Poshta branch.",
     "Стежте": "Track it",
     "Статус замовлення — у вашому кабінеті.": "Order status is in your account.",
-    "Hazeloo — невеликий екологічний сад на Покутті: 150 дерев, ручний збір, без синтетичної хімії.": "Hazeloo is a small organic orchard in Pokuttia: 150 trees, hand-picked, no synthetic chemicals.",
+    "Hazely — невеликий екологічний сад на Покутті: 150 дерев, ручний збір, без синтетичної хімії.": "Hazely is a small organic orchard in Pokuttia: 150 trees, hand-picked, no synthetic chemicals.",
     "Контакти й візити →": "Contacts and visits →",
 
     // --- підписка ---
-    "Підписка на фундучне дерево — Hazeloo": "Hazelnut tree subscription — Hazeloo",
-    "Іменне дерево в саду «Hazeloo» і продукти на бюджет пакета: Класичний, Гурман, Господар дерева.": "A named tree in the Hazeloo orchard and products within the plan budget: Classic, Gourmet, Tree Owner.",
+    "Підписка на фундучне дерево — Hazely": "Hazelnut tree subscription — Hazely",
+    "Іменне дерево в саду «Hazely» і продукти на бюджет пакета: Класичний, Гурман, Господар дерева.": "A named tree in the Hazely orchard and products within the plan budget: Classic, Gourmet, Tree Owner.",
     "Підписка на дерево": "Tree subscription",
     "Дерево з": "A tree with",
     "вашим імʼям": "your name",
@@ -106,9 +106,9 @@
     "12 місяців, до двох відправок включено. Імʼя дерева та одержувача менеджер уточнить під час підтвердження замовлення.": "12 months, up to two shipments included. We will confirm the tree name and recipient when we confirm your order.",
 
     // --- магазин ---
-    "Магазин фундука — Hazeloo, Снятин": "Hazelnut shop — Hazeloo, Snyatyn",
-    "Фундук, смажене ядро, паста та горіхи в шоколаді з саду «Hazeloo». Роздрібний магазин із доставкою по Україні.": "Hazelnuts, roasted kernels, paste and chocolate-coated nuts from the Hazeloo orchard. Retail shop with delivery across Ukraine.",
-    "Магазин — Hazeloo, фундуковий сад": "Shop — Hazeloo hazelnut orchard",
+    "Магазин фундука — Hazely, Снятин": "Hazelnut shop — Hazely, Snyatyn",
+    "Фундук, смажене ядро, паста та горіхи в шоколаді з саду «Hazely». Роздрібний магазин із доставкою по Україні.": "Hazelnuts, roasted kernels, paste and chocolate-coated nuts from the Hazely orchard. Retail shop with delivery across Ukraine.",
+    "Магазин — Hazely, фундуковий сад": "Shop — Hazely hazelnut orchard",
     "Обирайте продукти з фундука з доставкою по Україні або самовивозом у Снятині.": "Choose hazelnut products with delivery across Ukraine or pick-up in Snyatyn.",
     "Смаки": "Flavours",
     "з нашого саду": "from our orchard",
@@ -139,16 +139,16 @@
     "Фундук, какао і трохи тростинного цукру": "Hazelnuts, cocoa and a little cane sugar",
 
     // --- адвент ---
-    "Адвент із фундука — Hazeloo": "Hazelnut Advent calendar — Hazeloo",
-    "Адвент-календар «7 днів фундука» від саду «Hazeloo»: сім маленьких смаків до зимових свят.": "The “7 Days of Hazelnut” Advent calendar from the Hazeloo orchard: seven small tastes before the winter holidays.",
-    "Адвент-календар «7 днів фундука» від саду «Hazeloo»: сім маленьких смаків до зимових свят": "The “7 Days of Hazelnut” Advent calendar from the Hazeloo orchard: seven small tastes before the winter holidays",
-    "Адвент-календар із фундука — Hazeloo": "Hazelnut Advent calendar — Hazeloo",
+    "Адвент із фундука — Hazely": "Hazelnut Advent calendar — Hazely",
+    "Адвент-календар «7 днів фундука» від саду «Hazely»: сім маленьких смаків до зимових свят.": "The “7 Days of Hazelnut” Advent calendar from the Hazely orchard: seven small tastes before the winter holidays.",
+    "Адвент-календар «7 днів фундука» від саду «Hazely»: сім маленьких смаків до зимових свят": "The “7 Days of Hazelnut” Advent calendar from the Hazely orchard: seven small tastes before the winter holidays",
+    "Адвент-календар із фундука — Hazely": "Hazelnut Advent calendar — Hazely",
     "Сім днів горіхових сюрпризів із саду в Снятині.": "Seven days of nutty surprises from our orchard in Snyatyn.",
     "Адвент-календар із горіховими сюрпризами": "Advent calendar with nutty surprises",
     "Сезонна пропозиція · 2026": "Seasonal offer · 2026",
     "Зима, розкладена на": "Winter, laid out in",
     "маленькі смаки": "little flavours",
-    "Адвент-календар «Hazeloo» — подарунок, який відкривається щодня і пахне свіжим фундуком.": "The Hazeloo Advent calendar is a gift you open every day, and it smells of fresh hazelnuts.",
+    "Адвент-календар «Hazely» — подарунок, який відкривається щодня і пахне свіжим фундуком.": "The Hazely Advent calendar is a gift you open every day, and it smells of fresh hazelnuts.",
     "Замовлення до 20 листопада 2026": "Order by 20 November 2026",
     "Підготовка та відправлення — до початку грудня.": "Preparation and dispatch — by early December.",
     "Адвент-календар на сім днів": "Seven-day Advent calendar",
@@ -172,8 +172,8 @@
     "Подарункова коробка з виробами з фундука": "Gift box with hazelnut products",
 
     // --- контакти ---
-    "Контакти — Hazeloo, фундуковий сад у Снятині": "Contacts — Hazeloo hazelnut orchard in Snyatyn",
-    "Адреса, телефон, email та графік візитів у фундуковий сад «Hazeloo», м. Снятин, Івано-Франківська область.": "Address, phone, email and visiting hours for the Hazeloo hazelnut orchard, Snyatyn, Ivano-Frankivsk Oblast.",
+    "Контакти — Hazely, фундуковий сад у Снятині": "Contacts — Hazely hazelnut orchard in Snyatyn",
+    "Адреса, телефон, email та графік візитів у фундуковий сад «Hazely», м. Снятин, Івано-Франківська область.": "Address, phone, email and visiting hours for the Hazely hazelnut orchard, Snyatyn, Ivano-Frankivsk Oblast.",
     "Приїздіть": "Come and",
     "у гості": "visit us",
     "Ми завжди раді поспілкуватися, показати сад і розповісти про сертифікати. Просто напишіть чи зателефонуйте.": "We are always happy to chat, show you the orchard and tell you about certificates. Just write or call.",
@@ -198,8 +198,8 @@
     "Сертифікат — найкращий спосіб подарувати шматочок саду тому, кого ви любите.": "A certificate is the best way to give a piece of the orchard to someone you love.",
 
     // --- умови ---
-    "Умови замовлення — Hazeloo": "Terms of order — Hazeloo",
-    "Умови доставки, оплати, повернення харчових продуктів і обробки персональних даних для магазину та підписки «Hazeloo».": "Delivery, payment, food returns and personal data terms for the Hazeloo shop and subscription.",
+    "Умови замовлення — Hazely": "Terms of order — Hazely",
+    "Умови доставки, оплати, повернення харчових продуктів і обробки персональних даних для магазину та підписки «Hazely».": "Delivery, payment, food returns and personal data terms for the Hazely shop and subscription.",
     "Прозорі правила": "Clear rules",
     "Коротко про доставку, підписку, повернення та обробку даних.": "Briefly about delivery, subscriptions, returns and data processing.",
     "Мінімальна сума замовлення — 300 грн. Доставка оплачується за тарифами перевізника. Самовивіз доступний у Снятині за попереднім узгодженням.": "The minimum order is UAH 300. Delivery is paid at the carrier's rates. Pick-up is available in Snyatyn by prior arrangement.",
@@ -219,7 +219,7 @@
     "Статуси замовлення: «Обробка», «Підтверджено», «Доставлено». Скасувати замовлення самостійно в кабінеті можна лише на етапі «Обробка»; після підтвердження — зателефонуйте нам.": "Order statuses: “Processing”, “Confirmed”, “Delivered”. You can cancel an order yourself in your account only at the “Processing” stage; after confirmation, please call us.",
 
     // --- замовлення ---
-    "Замовлення — Hazeloo": "Order — Hazeloo",
+    "Замовлення — Hazely": "Order — Hazely",
     "Оформіть замовлення: імʼя, телефон, відділення Нової пошти та продукти.": "Place an order: name, phone, Nova Poshta branch and products.",
     "Ваше": "Your",
     "Підписка": "Subscription",
@@ -237,7 +237,7 @@
     "Відкрити кабінет": "Open account",
 
     // --- кабінет ---
-    "Кабінет — Hazeloo": "Account — Hazeloo",
+    "Кабінет — Hazely": "Account — Hazely",
     "Статуси ваших замовлень: обробка, підтверджено, доставлено. Скасування на етапі обробки.": "Your order statuses: processing, confirmed, delivered. Cancellation is possible at the processing stage.",
     "Мої": "My",
     "Вхід": "Sign in",
@@ -328,14 +328,14 @@
     set: function (key, value) { try { localStorage.setItem(key, value); } catch (_) { /* приватний режим */ } }
   };
 
-  var CFG = window.HAZELOO_PRICING || {};
+  var CFG = window.HAZELY_PRICING || {};
   var RATE = CFG.UAH_PER_EUR || 48;
   // ?lang=en&cur=EUR дозволяє поділитися посиланням з потрібними налаштуваннями
   var query = new URLSearchParams(window.location.search);
-  if (query.get("lang")) store.set("hazeloo-lang", query.get("lang"));
-  if (query.get("cur")) store.set("hazeloo-cur", query.get("cur"));
-  var lang = store.get("hazeloo-lang") === "en" ? "en" : "uk";
-  var cur = store.get("hazeloo-cur") === "EUR" ? "EUR" : "UAH";
+  if (query.get("lang")) store.set("hazely-lang", query.get("lang"));
+  if (query.get("cur")) store.set("hazely-cur", query.get("cur"));
+  var lang = store.get("hazely-lang") === "en" ? "en" : "uk";
+  var cur = store.get("hazely-cur") === "EUR" ? "EUR" : "UAH";
   var listeners = [];
   var textNodes = [];
   var attrNodes = [];
@@ -376,8 +376,8 @@
     },
     onChange: function (fn) { listeners.push(fn); },
     set: function (next) {
-      if (next.lang) { lang = next.lang === "en" ? "en" : "uk"; store.set("hazeloo-lang", lang); }
-      if (next.cur) { cur = next.cur === "EUR" ? "EUR" : "UAH"; store.set("hazeloo-cur", cur); }
+      if (next.lang) { lang = next.lang === "en" ? "en" : "uk"; store.set("hazely-lang", lang); }
+      if (next.cur) { cur = next.cur === "EUR" ? "EUR" : "UAH"; store.set("hazely-cur", cur); }
       applyStatic();
       listeners.forEach(function (fn) { fn(); });
     }
@@ -428,7 +428,7 @@
       b.addEventListener("click", function () {
         // уперше обираючи English, показуємо євро, якщо валюту ще не обирали
         var next = { lang: b.dataset.lang };
-        if (b.dataset.lang === "en" && !store.get("hazeloo-cur")) next.cur = "EUR";
+        if (b.dataset.lang === "en" && !store.get("hazely-cur")) next.cur = "EUR";
         api.set(next);
       });
     });

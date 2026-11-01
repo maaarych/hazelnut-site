@@ -12,7 +12,7 @@ var PRICING = {
   // (1 ГГ = 1 грн). 10% бюджету ≈ 5% вартості пакета.
   BUDGET_TOLERANCE: 0.1,
   PRODUCTS_URL: "data/products.json",
-  SHOP_CART_KEY: "hazeloo-shop-cart",
+  SHOP_CART_KEY: "hazely-shop-cart",
   SUBSCRIPTIONS: {
     classic: {
       id: "classic",
@@ -126,5 +126,5 @@ var PRICING = {
   }
 };
 if (typeof module !== "undefined" && module.exports) module.exports = PRICING;
-else root.HAZELOO_PRICING = PRICING;
+else root.HAZELY_PRICING = PRICING;
 })(typeof window !== "undefined" ? window : globalThis);

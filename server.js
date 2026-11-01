@@ -1,5 +1,5 @@
 "use strict";
-// Сайт + API «Hazeloo»: користувачі, кабінет, замовлення. Без зовнішніх залежностей (Node 22+, node:sqlite).
+// Сайт + API «Hazely»: користувачі, кабінет, замовлення. Без зовнішніх залежностей (Node 22+, node:sqlite).
 
 const http = require("node:http");
 const fs = require("node:fs");
@@ -13,7 +13,7 @@ const PRICING = require("./js/pricing.js");
 const PRODUCTS = JSON.parse(fs.readFileSync(path.join(__dirname, "data", "products.json"), "utf8")).filter((p) => !p.adult);
 
 const PORT = Number(process.env.PORT) || 3000;
-const DB_PATH = process.env.DB_PATH || path.join(__dirname, "data", "hazeloo.db");
+const DB_PATH = process.env.DB_PATH || path.join(__dirname, "data", "hazely.db");
 const SESSION_DAYS = 30;
 const STATUSES = ["processing", "confirmed", "delivered", "cancelled"];
 
@@ -376,7 +376,7 @@ const server = http.createServer(async (req, res) => {
 
 if (require.main === module) {
   db.prepare("DELETE FROM sessions WHERE expires_at < ?").run(new Date().toISOString());
-  server.listen(PORT, () => console.log("Hazeloo: http://localhost:" + PORT));
+  server.listen(PORT, () => console.log("Hazely: http://localhost:" + PORT));
 }
 
 module.exports = { db, setStatus, STATUSES, server };

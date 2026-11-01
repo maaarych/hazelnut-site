@@ -1,4 +1,4 @@
--- Hazeloo: користувачі, сесії та замовлення (SQLite)
+-- Hazely: користувачі, сесії та замовлення (SQLite)
 
 CREATE TABLE IF NOT EXISTS users (
   id            INTEGER PRIMARY KEY AUTOINCREMENT,

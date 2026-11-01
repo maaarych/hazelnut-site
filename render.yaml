@@ -1,6 +1,6 @@
 services:
   - type: web
-    name: hazeloo
+    name: hazely
     runtime: node
     plan: starter            # 0.5 CPU, 512 MB
     buildCommand: "true"     # залежностей немає
@@ -10,7 +10,7 @@ services:
       - key: NODE_VERSION
         value: 22
       - key: DB_PATH
-        value: /var/data/hazeloo.db
+        value: /var/data/hazely.db
       - key: COOKIE_SECURE
         value: "1"
       - key: TRUST_PROXY
@@ -22,6 +22,6 @@ services:
       - key: TELEGRAM_CHAT_IDS
         sync: false
     disk:
-      name: hazeloo-data
+      name: hazely-data
       mountPath: /var/data
       sizeGB: 1
