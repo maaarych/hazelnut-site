@@ -200,13 +200,19 @@ function orderMessage(title, order) {
 function notify(text) {
   const token = process.env.TELEGRAM_BOT_TOKEN;
   const chats = String(process.env.TELEGRAM_CHAT_IDS || "").split(",").map((s) => s.trim()).filter(Boolean);
-  if (!token || !chats.length) return;
+  if (!token || !chats.length) {
+    console.warn("Telegram: не задано TELEGRAM_BOT_TOKEN або TELEGRAM_CHAT_IDS — сповіщення не надіслано");
+    return;
+  }
   chats.forEach((chatId) => {
     fetch("https://api.telegram.org/bot" + token + "/sendMessage", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ chat_id: chatId, text })
-    }).then((r) => { if (!r.ok) console.error("Telegram", chatId, r.status); }).catch((e) => console.error("Telegram", e.message));
+    }).then(async (r) => {
+      if (r.ok) console.log("Telegram: надіслано в чат", chatId);
+      else console.error("Telegram: чат", chatId, "відповідь", r.status, await r.text());
+    }).catch((e) => console.error("Telegram: чат", chatId, "помилка мережі", e.message));
   });
 }
 
