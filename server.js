@@ -254,7 +254,9 @@ function register(res, body) {
 
 async function handleApi(req, res, url) {
   const route = req.method + " " + url.pathname;
-  const ip = req.socket.remoteAddress || "";
+  // за проксі (Render) реальна адреса клієнта — останній запис X-Forwarded-For, доданий найближчим проксі
+  const forwarded = process.env.TRUST_PROXY ? String(req.headers["x-forwarded-for"] || "").split(",").pop().trim() : "";
+  const ip = forwarded || req.socket.remoteAddress || "";
 
   if (route === "GET /api/me") {
     const user = currentUser(req);

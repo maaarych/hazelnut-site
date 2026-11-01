@@ -1,0 +1,27 @@
+services:
+  - type: web
+    name: hazeloo
+    runtime: node
+    plan: starter            # 0.5 CPU, 512 MB
+    buildCommand: "true"     # залежностей немає
+    startCommand: npm start
+    healthCheckPath: /
+    envVars:
+      - key: NODE_VERSION
+        value: 22
+      - key: DB_PATH
+        value: /var/data/hazeloo.db
+      - key: COOKIE_SECURE
+        value: "1"
+      - key: TRUST_PROXY
+        value: "1"
+      - key: ADMIN_TOKEN
+        generateValue: true
+      - key: TELEGRAM_BOT_TOKEN
+        sync: false
+      - key: TELEGRAM_CHAT_IDS
+        sync: false
+    disk:
+      name: hazeloo-data
+      mountPath: /var/data
+      sizeGB: 1
