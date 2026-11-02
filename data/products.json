@@ -15,7 +15,7 @@
     "unit": "100 г",
     "kernel_g": 100,
     "gg": 100,
-    "image": "images/hazelnut-branch.jpg",
+    "image": "images/raw-kernel.jpg",
     "adult": false,
     "description": "Висушене природно, без обсмажування"
   },
@@ -25,7 +25,7 @@
     "unit": "100 г",
     "kernel_g": 100,
     "gg": 110,
-    "image": "images/harvest.jpg",
+    "image": "images/roast-kernel.jpg",
     "adult": false,
     "description": "Легке обсмажування, насичений аромат"
   },
@@ -55,7 +55,7 @@
     "unit": "100 г",
     "kernel_g": 40,
     "gg": 110,
-    "image": "images/paste.jpg",
+    "image": "images/choc-paste.jpg",
     "adult": false,
     "description": "Фундук, какао і трохи тростинного цукру"
   }
